@@ -1,1 +1,2 @@
 case 01
+str
