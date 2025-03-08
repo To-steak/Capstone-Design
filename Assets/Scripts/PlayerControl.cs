@@ -4,9 +4,9 @@ using UnityEngine.InputSystem;
 public class PlayerControl : MonoBehaviour
 {
     [Header("Player Attribute")]
-    public float f_moveSpeed;
-    public float f_jumpAmount;
-    public float f_mouseSensitivity;
+    public float MoveSpeed;
+    public float JumpAmount;
+    public float MouseSensitivity;
 
     [Header("Camera Attribute")]
     public GameObject CinemachineCameraTarget;
@@ -34,13 +34,13 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        Move(v_moveDirection, f_moveSpeed);
+        Move(v_moveDirection, MoveSpeed);
         Look(v_lookDirection);
     }
 
     void LateUpdate()
     {
-
+        CameraRotation();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -63,7 +63,8 @@ public class PlayerControl : MonoBehaviour
     {
         if (rb_rigidbody != null && context.started)
         {
-            gameObject.transform.Translate(Vector3.up * f_jumpAmount * Time.deltaTime);
+            // gameObject.transform.Translate(Vector3.up * JumpAmount * Time.deltaTime);
+            rb_rigidbody.AddForce(Vector3.up * JumpAmount, ForceMode.Impulse);
         }
     }
 
@@ -82,7 +83,7 @@ public class PlayerControl : MonoBehaviour
     }
     private void Look(Vector2 dir)
     {
-        transform.Rotate(Vector3.up * dir.x * f_mouseSensitivity * Time.deltaTime);
+        transform.Rotate(Vector3.up * dir.x * MouseSensitivity * Time.deltaTime);
     }
 
     private void CameraRotation()

@@ -593,12 +593,24 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
+      propertyPath: MoveSpeed
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
+      propertyPath: JumpAmount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
       propertyPath: f_moveSpeed
       value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
       propertyPath: f_jumpAmount
       value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
+      propertyPath: MouseSensitivity
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 7801643203569778092, guid: d1b5c525798d9cb4d8778239f572f2f4, type: 3}
       propertyPath: f_mouseSensitivity
