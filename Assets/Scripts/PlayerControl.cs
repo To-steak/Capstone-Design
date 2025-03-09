@@ -20,6 +20,7 @@ public class PlayerControl : MonoBehaviour
     private Rigidbody rb_rigidbody;
     private CharacterController cc_characterController;
     private bool b_isGrounded;
+    private bool CursorLocked;
 
     void Awake()
     {
@@ -30,16 +31,15 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        CursorLocked = true;
     }
 
     void Update()
     {
         Move(v_moveDirection, MoveSpeed);
         Look(v_lookDirection);
-    }
-
-    void LateUpdate()
-    {
         CameraRotation();
     }
 
@@ -79,11 +79,17 @@ public class PlayerControl : MonoBehaviour
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        v_lookDirection = context.ReadValue<Vector2>();
+        if (CursorLocked)
+        {
+            v_lookDirection = context.ReadValue<Vector2>();
+            Debug.Log($"On Look: {v_lookDirection}");
+        }
+        Debug.Log($"Off Look");
     }
     private void Look(Vector2 dir)
     {
         transform.Rotate(Vector3.up * dir.x * MouseSensitivity * Time.deltaTime);
+        Debug.Log($"Look : {transform.rotation}");
     }
 
     private void CameraRotation()
@@ -101,6 +107,8 @@ public class PlayerControl : MonoBehaviour
         // Cinemachine will follow this target
         CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
             _cinemachineTargetYaw, 0.0f);
+
+        Debug.Log($"Camera Rotation : {CinemachineCameraTarget.transform.rotation}");
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
