@@ -15,6 +15,7 @@ public class ObjectInteraction : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
+
     }
 
     public void ObjectInteract()
@@ -33,4 +34,5 @@ public class ObjectInteraction : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+  
 }

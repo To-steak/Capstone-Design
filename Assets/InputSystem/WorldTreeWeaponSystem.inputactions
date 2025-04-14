@@ -1,0 +1,40 @@
+{
+    "name": "WorldTreeWeaponSystem",
+    "maps": [
+        {
+            "name": "Weapon",
+            "id": "f2aca425-e2c0-4c75-a670-880139ff7ae5",
+            "actions": [
+                {
+                    "name": "Attack",
+                    "type": "Button",
+                    "id": "0553c9f8-e4fc-48ee-b539-9540a293e567",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "dedf2160-51fb-4f19-8041-416ad6299c10",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "KeyboardMouse",
+            "bindingGroup": "KeyboardMouse",
+            "devices": []
+        }
+    ]
+}
