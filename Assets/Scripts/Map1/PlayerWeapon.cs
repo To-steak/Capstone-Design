@@ -6,6 +6,7 @@ public class PlayerWeapon : MonoBehaviour, WorldTreeWeaponSystem.IWeaponActions
 {
     public Vector3 offset = new Vector3(0, 0, 0);
     public float weaponDistance = 10f;
+    public float weaponDamage = 40;
 
     public WorldTreeWeaponSystem WorldTreeWeaponSystem { get; private set; }
     void Start()
@@ -59,7 +60,12 @@ public class PlayerWeapon : MonoBehaviour, WorldTreeWeaponSystem.IWeaponActions
 
         if(Physics.Raycast(ray, out rayHit, weaponDistance, layer))
         {
-            Debug.Log("ray Hit", rayHit.transform);
+            HumanAI target = rayHit.collider.GetComponent<HumanAI>();
+            if ( target != null)
+            {
+                Debug.Log("ray Hit HumanAI", rayHit.transform);
+                target.TakeDamage(weaponDamage);
+            }
         }
     }
 

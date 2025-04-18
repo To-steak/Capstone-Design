@@ -427,7 +427,7 @@ namespace StarterAssets
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Interactable"))
+            if (other.gameObject.CompareTag("Interactable") || other.gameObject.CompareTag("Fire"))
             {
                 _interactableObject = other;
             }
@@ -435,7 +435,7 @@ namespace StarterAssets
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.CompareTag("Interactable"))
+            if (other.gameObject.CompareTag("Interactable") || other.gameObject.CompareTag("Fire"))
             {
                 _interactableObject = null;
             }

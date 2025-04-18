@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class WorldTree : MonoBehaviour
 {
-    private int Health = 100;
+    private float Health = 100;
 
     void Start()
     {
@@ -15,15 +15,20 @@ public class WorldTree : MonoBehaviour
         
     }
 
-    public void HealthSet(int amount)
+    public void SetHealth(float amount)
     {
         Health = amount;
+        Debug.Log("World Tree Health set : " + Health);
     }
 
     public void HealthChange(int amount)
     {
         Health += amount;
+        Debug.Log("World Tree Health : " +  Health);
     }
 
-
+    public float GetHealth()
+    {
+        return Health;
+    }
 }
