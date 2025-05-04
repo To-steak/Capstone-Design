@@ -1,7 +1,9 @@
 ﻿using Cinemachine;
 using UnityEngine;
 using System.Reflection;
-#if ENABLE_INPUT_SYSTEM 
+using System;
+
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -79,9 +81,11 @@ namespace StarterAssets
 
         [Tooltip("Cinemachine's data for switching")]
         public CinemachineCameraData[] cameraData;
-        [Tooltip("")]
-        public Transform aimObject;
-        
+        [Tooltip("Spine")]
+        public Transform spine;
+        private float spineMinX = -20f;
+        private float spineMaxX = 70f;
+
         // interaction
         private Collider _interactableObject;
 
@@ -231,16 +235,14 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
 
             // 이후부터 Aim을 했을 때, 카메라 회전에 관한 작업
-            // transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * _mouseSensitivity);
+            if (_input.aim)
+            {
+                Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
-            // _mouseY += Input.GetAxisRaw("Mouse Y") * _mouseSensitivity;
-            // _mouseY = Mathf.Clamp(_mouseY, -20f, 60f);
-
-            // viewPoint.transform.localEulerAngles = Vector3.left * _mouseY;
-            // personFollow.ShoulderOffset = new Vector3(0, -0.1f * _mouseY, 0.3f);
-
-            // _playerSpine.localRotation = Quaternion.Euler(0, 0,_mouseY * 0.8f);
-
+                float clampedX = Mathf.Clamp(_cinemachineTargetPitch, spineMinX, spineMaxX);
+                spine.localRotation = Quaternion.Euler(clampedX, 0f, 0f);
+            }
         }
 
         private void Move()
@@ -285,15 +287,13 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            // Aim 모드와 Around 모드일 때, 회전을 다르게 해야함 => 일단 보류
-            if (_input.move != Vector2.zero)
-            {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+            _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                                      _mainCamera.transform.eulerAngles.y;
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
+            if (_input.move != Vector2.zero && !_input.aim)
+            {
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
@@ -473,7 +473,7 @@ namespace StarterAssets
             {
                 if (FootstepAudioClips.Length > 0)
                 {
-                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    var index = UnityEngine.Random.Range(0, FootstepAudioClips.Length);
                     AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
                 }
             }
