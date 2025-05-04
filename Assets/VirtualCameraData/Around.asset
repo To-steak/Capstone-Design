@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9625d0ebf5947ce42997db0f4360516f, type: 3}
+  m_Name: Around
+  m_EditorClassIdentifier: 
+  damping: {x: 0.1, y: 0.25, z: 0.3}
+  shoulderOffset: {x: 1, y: 0, z: 0}
+  verticalArmLength: 0
+  cameraSide: 0.6
+  cameraDistance: 4
+  cameraCollisionFilter:
+    serializedVersion: 2
+    m_Bits: 1
+  ignoreTag: Player
+  cameraRadius: 0.15
