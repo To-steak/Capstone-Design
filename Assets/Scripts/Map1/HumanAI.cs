@@ -10,7 +10,6 @@ using Unity.Mathematics;
 public class HumanAI : MonoBehaviour
 {
     private float Health = 100;
-    private float moveSpeed = 3;
     
     private Action onComplete;
 
@@ -41,7 +40,7 @@ public class HumanAI : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain WorldTreeManager");
         }
-        agent.speed = moveSpeed;
+        agent.speed = _worldTreeManager.HumanAISpeed;
 
         GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Fire");
         waypoints = new Transform[waypointsGameObject.Length];
