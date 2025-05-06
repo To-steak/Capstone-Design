@@ -9,7 +9,7 @@ using Unity.Mathematics;
 
 public class HumanAI : MonoBehaviour
 {
-    private float Health = 100;
+    protected float Health = 100;
     
     private Action onComplete;
 
@@ -17,7 +17,7 @@ public class HumanAI : MonoBehaviour
     public Collider _fireLitRange;
     public NavMeshAgent agent;
 
-    private Transform[] waypoints;
+    protected Transform[] waypoints;
     int waypointIndex = -1;
 
     private void Start()
