@@ -298,6 +298,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _seed: {fileID: 927129066221026170, guid: ebcae2162ce68f746953bfb5aed57498, type: 3}
 --- !u!135 &8567068799430276887
 SphereCollider:
   m_ObjectHideFlags: 0
