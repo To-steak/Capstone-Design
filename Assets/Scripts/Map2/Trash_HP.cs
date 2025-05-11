@@ -17,6 +17,7 @@ public class Trash_HP : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HP -= 1 * Time.deltaTime;
         if (HP <= 0)
         {
             onLogged.Invoke();
