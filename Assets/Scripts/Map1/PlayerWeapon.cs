@@ -67,6 +67,16 @@ public class PlayerWeapon : MonoBehaviour, WorldTreeWeaponSystem.IWeaponActions
                 target.TakeDamage(weaponDamage);
             }
         }
+
+        if (Physics.Raycast(ray, out rayHit, weaponDistance, layer))
+        {
+            HumanAI_Forest target = rayHit.collider.GetComponent<HumanAI_Forest>();
+            if (target != null)
+            {
+                Debug.Log("ray Hit HumanAI", rayHit.transform);
+                target.TakeDamage(weaponDamage);
+            }
+        }
     }
 
     private void OnDrawGizmosSelected()

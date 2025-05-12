@@ -9,7 +9,7 @@ public class FireObject : ObjectInteraction
     public UnityEvent fireOverflow;
     private bool isLit = false;
     private float fireTimer = 0f;
-    public float fireTimeOut = 10f;
+    private float fireTimeOut = 10f;
 
 
     private void Awake()
@@ -19,8 +19,14 @@ public class FireObject : ObjectInteraction
         {
             Debug.LogWarning("This scene has not contain WorldTreeManager");
         }
+
+        
     }
 
+    private void Start()
+    {
+        fireTimeOut = _worldTreeManager.GetTermOfFireOverflow();
+    }
     private void Update()
     {
         

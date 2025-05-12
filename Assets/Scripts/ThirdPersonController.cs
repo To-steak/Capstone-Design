@@ -1,7 +1,9 @@
 ﻿using Cinemachine;
 using UnityEngine;
 using System.Reflection;
-#if ENABLE_INPUT_SYSTEM 
+using System;
+
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -79,9 +81,15 @@ namespace StarterAssets
 
         [Tooltip("Cinemachine's data for switching")]
         public CinemachineCameraData[] cameraData;
-        [Tooltip("")]
-        public Transform aimObject;
-        
+
+        [Tooltip("Spine")]
+        public Transform spine;
+        private float spineMin = -20f;
+        private float spineMax = 30f;
+
+        [Tooltip("Attack")]
+        [SerializeField] private LineRenderer aimLine;
+
         // interaction
         private Collider _interactableObject;
 
@@ -98,6 +106,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        private float _attackRange = 10f;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -231,16 +240,14 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
 
             // 이후부터 Aim을 했을 때, 카메라 회전에 관한 작업
-            // transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * _mouseSensitivity);
+            if (_input.aim)
+            {
+                Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
-            // _mouseY += Input.GetAxisRaw("Mouse Y") * _mouseSensitivity;
-            // _mouseY = Mathf.Clamp(_mouseY, -20f, 60f);
-
-            // viewPoint.transform.localEulerAngles = Vector3.left * _mouseY;
-            // personFollow.ShoulderOffset = new Vector3(0, -0.1f * _mouseY, 0.3f);
-
-            // _playerSpine.localRotation = Quaternion.Euler(0, 0,_mouseY * 0.8f);
-
+                float clamped = Mathf.Clamp(_cinemachineTargetPitch, spineMin, spineMax);
+                spine.localRotation = Quaternion.Euler(0f, 0f, clamped);
+            }
         }
 
         private void Move()
@@ -285,18 +292,15 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            // Aim 모드와 Around 모드일 때, 회전을 다르게 해야함 => 일단 보류
-            if (_input.move != Vector2.zero)
-            {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+            _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                                      _mainCamera.transform.eulerAngles.y;
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
+            if (_input.move != Vector2.zero && !_input.aim)
+            {
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
-
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
@@ -307,14 +311,22 @@ namespace StarterAssets
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                if (_input.aim)
+                {
+                    _animator.SetFloat("Horizontal", _input.move.x);
+                    _animator.SetFloat("Vertical", _input.move.y);
+                }
+                else
+                {
+                    _animator.SetFloat(_animIDSpeed, _animationBlend);
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                }
             }
         }
 
         private void JumpAndGravity()
         {
-            if (Grounded)
+            if (Grounded && !_input.aim)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
@@ -396,15 +408,40 @@ namespace StarterAssets
             if (_input.cursorLocked && _input.aim)
             {
                 SwitchCinemachineCamera(1);
+                aimLine.enabled = true;
+                // Vector3 origin = _mainCamera.transform.position;
+                // 왼손과 오른손을 기준으로 direction을 계산하고 linerenderer를 쏘면 더 정확할 듯
+                Vector3 origin = aimLine.transform.position;
+                Vector3 direction = aimLine.transform.forward;
+                Vector3 endPoint = origin + direction * _attackRange;
+                aimLine.SetPosition(0, origin);
+                aimLine.SetPosition(1, endPoint);
+
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
+                {
+                    // 미구현
+                }
             }
             else
             {
                 SwitchCinemachineCamera(0);
+                aimLine.enabled = false;
             }
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDAim, false);
+                _animator.SetBool(_animIDAim, _input.aim);
+            }
+        }
+
+        private void Attack()
+        {
+            if (_hasAnimator)
+            {
+                if (_input.attack)
+                {
+                    // implement
+                }
             }
         }
 
@@ -473,7 +510,7 @@ namespace StarterAssets
             {
                 if (FootstepAudioClips.Length > 0)
                 {
-                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    var index = UnityEngine.Random.Range(0, FootstepAudioClips.Length);
                     AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
                 }
             }

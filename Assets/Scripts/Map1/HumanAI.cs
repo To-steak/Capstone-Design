@@ -9,8 +9,7 @@ using Unity.Mathematics;
 
 public class HumanAI : MonoBehaviour
 {
-    private float Health = 100;
-    private float moveSpeed = 3;
+    protected float Health = 100;
     
     private Action onComplete;
 
@@ -18,13 +17,14 @@ public class HumanAI : MonoBehaviour
     public Collider _fireLitRange;
     public NavMeshAgent agent;
 
-    private Transform[] waypoints;
+    protected Transform[] waypoints;
     int waypointIndex = -1;
 
     private void Start()
     {
         onComplete += SetWaypoint;
         SetWaypoint();
+        agent.speed = _worldTreeManager.GetHumanAISpeed();
     }
 
     void SetWaypoint()
@@ -41,7 +41,7 @@ public class HumanAI : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain WorldTreeManager");
         }
-        agent.speed = moveSpeed;
+        
 
         GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Fire");
         waypoints = new Transform[waypointsGameObject.Length];
