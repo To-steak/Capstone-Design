@@ -31,10 +31,29 @@ public class HumanAI_Forest : MonoBehaviour
     }
     private state_ForestHumanAI curState;
 
+    private void Awake()
+    {
+        _forestManager = GameObject.Find("ForestManager").GetComponent<ForestManager>();
+        if (_forestManager == null)
+        {
+            Debug.LogWarning("This scene has not contain ForestManager");
+        }
+        
+        GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Interactable");
+        waypoints = new Transform[waypointsGameObject.Length];
+        for (int i = 0; i < waypointsGameObject.Length; i++)
+        {
+            waypoints[i] = waypointsGameObject[i].transform;
+        }
+    }
+
     private void Start()
     {
         //onComplete += SetWaypoint;
         //SetWaypoint();
+
+        agent.speed = _forestManager.GetHumanAISpeed();
+        loggingDamage = _forestManager.GetHumanAILogDamage();
     }
 
     Transform nearestWayPoint;
@@ -70,22 +89,7 @@ public class HumanAI_Forest : MonoBehaviour
         return false;
     }
 
-    private void Awake()
-    {
-        _forestManager = GameObject.Find("ForestManager").GetComponent<ForestManager>();
-        if (_forestManager == null)
-        {
-            Debug.LogWarning("This scene has not contain ForestManager");
-        }
-        agent.speed = _forestManager.HumanAISpeed;
-
-        GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Interactable");
-        waypoints = new Transform[waypointsGameObject.Length];
-        for(int i = 0; i < waypointsGameObject.Length; i++)
-        {
-            waypoints[i] = waypointsGameObject[i].transform;
-        }
-    }
+    
 
     float delay = 1;
     void Update()

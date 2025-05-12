@@ -25,6 +25,7 @@ public class Seed_Forest : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _forestManager.addHaveSeedCount(1);
+            _forestManager.AddCurRegenSeeds(-1);
             Debug.Log("Player get Seed");
             Destroy(this.gameObject);
         }

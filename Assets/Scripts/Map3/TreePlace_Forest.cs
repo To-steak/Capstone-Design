@@ -10,7 +10,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class TreePlace_Forest : ObjectInteraction
 {
     private ForestManager _forestManager;
-    private GameObject _textUI;
+    private TextMeshProUGUI _textUI;
 
 
     private bool seedPlanted = false;
@@ -24,7 +24,7 @@ public class TreePlace_Forest : ObjectInteraction
             Debug.LogWarning("This scene has not contain ForestManager");
         }
 
-        _textUI = GameObject.Find("Text");
+        _textUI = GameObject.Find("Text").GetComponent<TextMeshProUGUI>();
     }
 
     // Update is called once per frame
@@ -33,7 +33,7 @@ public class TreePlace_Forest : ObjectInteraction
         
     }
 
-    Coroutine coroutine;
+    
     public void SeedPlanting()
     {
         if(_forestManager.GetHaveSeedCount() >= 1)
@@ -46,29 +46,34 @@ public class TreePlace_Forest : ObjectInteraction
         }
         else
         {
-            _textUI.GetComponent<TextMeshProUGUI>().text = "doesn't have seed";
-            _textUI.GetComponent<TextMeshProUGUI>().enabled = true;
-            if(coroutine != null) { StopCoroutine(coroutine); }
-            coroutine = StartCoroutine(CoFadeOut());
+            ShowTextFaded(_textUI, "doesn't have seed");
         }
     }
 
-    IEnumerator CoFadeOut()
+    Coroutine coroutine;
+    private void ShowTextFaded(TextMeshProUGUI t, string message)
+    {
+        t.text = message;
+        t.enabled = true;
+        if(coroutine != null) { StopCoroutine(coroutine); }
+        coroutine = StartCoroutine(CoFadeOut(_textUI));
+    }
+    IEnumerator CoFadeOut(TextMeshProUGUI t)
     {
         float elapsedTime = 0f; // 누적 경과 시간
         float fadedTime = 2f; // 총 소요 시간
 
-        _textUI.GetComponent<CanvasRenderer>().SetAlpha(1f);
+        t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
         {
-            _textUI.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
+            t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
             Debug.Log("Fade Out 중...");
             yield return null;
         }
 
-        _textUI.GetComponent<TextMeshProUGUI>().enabled = false;
+        t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
         Debug.Log("Fade Out 끝");
         yield break;
@@ -82,4 +87,5 @@ public class TreePlace_Forest : ObjectInteraction
         this.transform.GetChild(0).gameObject.SetActive(false);
         _forestManager.LoggingTrees();
     }
+
 }
