@@ -81,10 +81,14 @@ namespace StarterAssets
 
         [Tooltip("Cinemachine's data for switching")]
         public CinemachineCameraData[] cameraData;
+
         [Tooltip("Spine")]
         public Transform spine;
-        private float spineMinX = -20f;
-        private float spineMaxX = 70f;
+        private float spineMin = -20f;
+        private float spineMax = 30f;
+
+        [Tooltip("Attack")]
+        [SerializeField] private LineRenderer aimLine;
 
         // interaction
         private Collider _interactableObject;
@@ -102,6 +106,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        private float _attackRange = 10f;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -240,8 +245,8 @@ namespace StarterAssets
                 Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
-                float clampedX = Mathf.Clamp(_cinemachineTargetPitch, spineMinX, spineMaxX);
-                spine.localRotation = Quaternion.Euler(clampedX, 0f, 0f);
+                float clamped = Mathf.Clamp(_cinemachineTargetPitch, spineMin, spineMax);
+                spine.localRotation = Quaternion.Euler(0f, 0f, clamped);
             }
         }
 
@@ -297,7 +302,6 @@ namespace StarterAssets
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
-
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
@@ -307,14 +311,22 @@ namespace StarterAssets
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                if (_input.aim)
+                {
+                    _animator.SetFloat("Horizontal", _input.move.x);
+                    _animator.SetFloat("Vertical", _input.move.y);
+                }
+                else
+                {
+                    _animator.SetFloat(_animIDSpeed, _animationBlend);
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                }
             }
         }
 
         private void JumpAndGravity()
         {
-            if (Grounded)
+            if (Grounded && !_input.aim)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
@@ -396,15 +408,40 @@ namespace StarterAssets
             if (_input.cursorLocked && _input.aim)
             {
                 SwitchCinemachineCamera(1);
+                aimLine.enabled = true;
+                // Vector3 origin = _mainCamera.transform.position;
+                // 왼손과 오른손을 기준으로 direction을 계산하고 linerenderer를 쏘면 더 정확할 듯
+                Vector3 origin = aimLine.transform.position;
+                Vector3 direction = aimLine.transform.forward;
+                Vector3 endPoint = origin + direction * _attackRange;
+                aimLine.SetPosition(0, origin);
+                aimLine.SetPosition(1, endPoint);
+
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
+                {
+                    // 미구현
+                }
             }
             else
             {
                 SwitchCinemachineCamera(0);
+                aimLine.enabled = false;
             }
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDAim, false);
+                _animator.SetBool(_animIDAim, _input.aim);
+            }
+        }
+
+        private void Attack()
+        {
+            if (_hasAnimator)
+            {
+                if (_input.attack)
+                {
+                    // implement
+                }
             }
         }
 

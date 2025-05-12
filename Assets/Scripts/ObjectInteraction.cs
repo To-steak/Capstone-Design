@@ -15,7 +15,6 @@ public class ObjectInteraction : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
-
     }
 
     public void ObjectInteract()
@@ -25,8 +24,8 @@ public class ObjectInteraction : MonoBehaviour
 
     public void LLMResponse()
     {
-        StartCoroutine(_webManager.GetResponse((response) => {
-            Debug.Log($"{response}");
+        StartCoroutine(_webManager.GetResponse("World Tree", 9, (res) => {
+            Debug.Log("" + res);
         }));
     }
 
