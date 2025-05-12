@@ -3,7 +3,16 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - CinemachineTarget
+  - CinemachineVirtualCamera
+  - Aim
+  - Interactable
+  - Web
+  - Fire
+  - SpawnPoints
+  - Tree
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -11,12 +20,12 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
   - Enemy
   - Player
   - Ground
+  - 
+  - 
+  - 
   - 
   - 
   - 
