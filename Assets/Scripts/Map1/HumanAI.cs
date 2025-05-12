@@ -24,6 +24,7 @@ public class HumanAI : MonoBehaviour
     {
         onComplete += SetWaypoint;
         SetWaypoint();
+        agent.speed = _worldTreeManager.GetHumanAISpeed();
     }
 
     void SetWaypoint()
@@ -40,7 +41,7 @@ public class HumanAI : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain WorldTreeManager");
         }
-        agent.speed = _worldTreeManager.HumanAISpeed;
+        
 
         GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Fire");
         waypoints = new Transform[waypointsGameObject.Length];
