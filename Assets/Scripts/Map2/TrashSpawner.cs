@@ -3,7 +3,7 @@ using UnityEngine;
 public class TrashSpawner : MonoBehaviour
 {
     public GameObject trashPrefab;
-    public int trashCount = 10;
+    public int trashCount = 31;
     public Vector3 spawnArea = new Vector3(10, 0, 10);
 
     void Start()
