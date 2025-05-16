@@ -25,7 +25,7 @@ public class ObjectInteraction : MonoBehaviour
     public void LLMResponse()
     {
         StartCoroutine(_webManager.GetResponse("World Tree", 9, (res) => {
-            Debug.Log("" + res);
+            Debug.Log(res);
         }));
     }
 

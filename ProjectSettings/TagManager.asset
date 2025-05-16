@@ -13,6 +13,8 @@ TagManager:
   - SpawnPoints
   - Tree
   - Enemy
+  - Head
+  - Body
   layers:
   - Default
   - TransparentFX
@@ -23,9 +25,6 @@ TagManager:
   - Enemy
   - Player
   - Ground
-  - 
-  - 
-  - 
   - 
   - 
   - 
