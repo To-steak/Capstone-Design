@@ -15,6 +15,7 @@ namespace StarterAssets
 		public bool aim;
 		public bool interact;
 		public bool attack;
+		public bool attackTriggered;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -24,78 +25,107 @@ namespace StarterAssets
 		public bool cursorInputForLook = true;
 
 #if ENABLE_INPUT_SYSTEM
-		public void OnMove(InputValue value)
+		public void OnMove(InputAction.CallbackContext context)
 		{
-			MoveInput(value.Get<Vector2>());
+			move = context.ReadValue<Vector2>();
 		}
 
-		public void OnLook(InputValue value)
+		public void OnLook(InputAction.CallbackContext context)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
-				LookInput(value.Get<Vector2>());
+				look = context.ReadValue<Vector2>();
 			}
 		}
 
-		public void OnJump(InputValue value)
+		public void OnJump(InputAction.CallbackContext context)
 		{
-			JumpInput(value.isPressed);
+			if (context.performed || context.started)
+				jump = true;
+			if (context.canceled)
+				jump = false;
 		}
 
-		public void OnSprint(InputValue value)
+		public void OnSprint(InputAction.CallbackContext context)
 		{
-			SprintInput(value.isPressed);
+			if (context.performed || context.started)
+				sprint = true;
+			if (context.canceled)
+				sprint = false;
 		}
 
-		public void OnAim(InputValue value)
+		public void OnAim(InputAction.CallbackContext context)
 		{
-			AimInput(value.isPressed);
+			if (context.performed)
+			{
+				aim = true;
+			}
+			else if (context.canceled)
+			{
+				aim = false;
+			}
 		}
-		public void OnInteract(InputValue value)
+
+		public void OnAttack(InputAction.CallbackContext context)
 		{
-			OnInteract(value.isPressed);
+			if (context.started)
+			{
+				attack = true;
+				attackTriggered = true;
+			}
+
+			if (context.canceled)
+			{
+				attack = false;
+			}
 		}
-		public void OnAttack(InputValue value)
+
+		public void OnInteract(InputAction.CallbackContext context)
 		{
-			AttackInput(value.isPressed);
+			if (context.started || context.performed)
+				interact = true;
+			if (context.canceled)
+				interact = false;
 		}
+
 
 #endif
 
 
-		public void MoveInput(Vector2 newMoveDirection)
-		{
-			move = newMoveDirection;
-		} 
+		// public void MoveInput(Vector2 newMoveDirection)
+		// {
+		// 	move = newMoveDirection;
+		// }
 
-		public void LookInput(Vector2 newLookDirection)
-		{
-			look = newLookDirection;
-		}
+		// public void LookInput(Vector2 newLookDirection)
+		// {
+		// 	look = newLookDirection;
+		// }
 
-		public void JumpInput(bool newJumpState)
-		{
-			jump = newJumpState;
-		}
+		// public void JumpInput(bool newJumpState)
+		// {
+		// 	jump = newJumpState;
+		// }
 
-		public void SprintInput(bool newSprintState)
-		{
-			sprint = newSprintState;
-		}
+		// public void SprintInput(bool newSprintState)
+		// {
+		// 	sprint = newSprintState;
+		// }
 
-		public void AimInput(bool newAimState)
-		{
-			aim = newAimState;
-		}
-		public void AttackInput(bool newAttackState)
-		{
-			attack = newAttackState;
-		}
+		// public void AimInput(bool newAimState)
+		// {
+		// 	aim = newAimState;
+		// }
 
-		private void OnInteract(bool newInteractState)
-		{
-			interact = newInteractState;
-		}
+		// public void AttackInput(bool newAttackState)
+		// {
+		// 	attack = newAttackState;
+		// }
+
+		// private void InteractInput(bool newInteractState)
+		// {
+		// 	interact = newInteractState;
+		// }
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
@@ -107,5 +137,5 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 	}
-	
+
 }

@@ -250,7 +250,7 @@
                     "name": "",
                     "id": "c296e3bf-db5c-4d33-8dd8-7ecb6f3e6864",
                     "path": "<Mouse>/rightButton",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": ";KeyboardMouse",
                     "action": "Aim",

@@ -1,13 +1,15 @@
 using UnityEngine;
 
-namespace Grove
+namespace Waste
 {
     public class GameManager : MonoBehaviour
     {
+        public int difficulty;
+        
         public static GameManager Instance { get; private set; }
 
         [SerializeField] private GameObject _fieldPlane;
-        [SerializeField] private int _treeCount;
+        [SerializeField] private int _enemyCount;
         [SerializeField] private LayerMask _groundMask;
 
         void Awake()
@@ -31,9 +33,6 @@ namespace Grove
 
         }
 
-        /// <summary>
-        /// Random tree placement
-        /// </summary>
         private void InitializeTree()
         {
             Vector3 center = _fieldPlane.transform.position;
@@ -42,7 +41,7 @@ namespace Grove
             float width = scale.x * 10f;
             float depth = scale.y * 10f;
 
-            for (int i = 0; i < _treeCount; i++)
+            for (int i = 0; i < _enemyCount; i++)
             {
                 float x = Random.Range(-width / 2f, width / 2f);
                 float z = Random.Range(-depth / 2f, depth / 2f);
@@ -52,7 +51,7 @@ namespace Grove
                 {
                     Vector3 spawnPos = hit.point;
                     Quaternion rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
-                    TreePoolManager.Instance.GetTree(spawnPos, rotation);
+                    EnemyPoolManager.Instance.GetEnemy(spawnPos, rotation);
                 }
             }
         }
