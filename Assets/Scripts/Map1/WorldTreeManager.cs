@@ -28,6 +28,7 @@ public class WorldTreeManager : MonoBehaviour
     private TextMeshProUGUI _textForScore;
     private TextMeshProUGUI _text;
     private TextMeshProUGUI _notify;
+    private TextMeshProUGUI _gameover;
     WorldTree _worldTree;
     private WebManager _webManager;
     GameObject[] EnemySpawnPoints;
@@ -45,6 +46,7 @@ public class WorldTreeManager : MonoBehaviour
         {
             Debug.Log("worldTree NULL");
         }
+        LevelOfDifficulty(20);
     }
     void Start()
     {
@@ -55,8 +57,8 @@ public class WorldTreeManager : MonoBehaviour
         _textForScore = GameObject.Find("TextForScore").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
+        _gameover = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         healthBarLen = worldTreeHealthBar.rectTransform.rect.width;
-        LevelOfDifficulty(20);
     }
 
     private void LevelOfDifficulty(float difficulty)
@@ -123,14 +125,15 @@ public class WorldTreeManager : MonoBehaviour
     public void WorldTreeHitByFireOverflow()
     {
         _worldTree.HealthChange(-damageOfFireOverflow);
-        StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) => {
+        StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) =>
+        {
             ShowTextFaded(_notify, res, 10f);
         }));
     }
 
     void GameOver()
     {
-
+        _gameover.enabled = true;
     }
 
     Coroutine coroutine;
@@ -155,13 +158,13 @@ public class WorldTreeManager : MonoBehaviour
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            Debug.Log("Fade Out 중...");
+            //Debug.Log("Fade Out 중...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        Debug.Log("Fade Out 끝");
+        //Debug.Log("Fade Out 끝");
         yield break;
     }
 }

@@ -47,6 +47,8 @@ public class ForestManager : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
+        LevelOfDifficulty(20);
+
     }
     void Start()
     {
@@ -57,7 +59,6 @@ public class ForestManager : MonoBehaviour
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
         _gameOver = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
-        LevelOfDifficulty(20);
         curAllowTreeLogging = allowTreeLogging;
     }
 
