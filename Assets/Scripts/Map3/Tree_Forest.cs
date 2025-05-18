@@ -56,7 +56,7 @@ public class Tree_Forest : MonoBehaviour
         
         if (curSeedRegenTerm <= 0)
         {
-            Vector3 randomVec = new Vector3(UnityEngine.Random.Range(2, 8), -this.transform.position.y + 1, UnityEngine.Random.Range(2, 8));
+            Vector3 randomVec = new Vector3(UnityEngine.Random.Range(2, 8), -this.transform.position.y + 2, UnityEngine.Random.Range(2, 8));
             Instantiate(_seed, this.transform.position + randomVec, Quaternion.identity);
             _forestManager.AddCurRegenSeeds(1);
             curSeedRegenTerm = UnityEngine.Random.Range(minSeedRegenTerm, maxSeedRegenTerm);

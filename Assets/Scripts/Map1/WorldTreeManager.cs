@@ -10,38 +10,51 @@ public class WorldTreeManager : MonoBehaviour
     private float gameDuration = 180f;
     private float timer;
 
-    private int damageOfFireOverflow = 10;
-    private float TermOfFireOverflow = 10; //sec
-    private int maxHumanAI = 5;
+    private int damageOfFireOverflow;
+    private float TermOfFireOverflow; //sec
+    private int maxHumanAI;
     private int curHumanAI = 0;
-    private float TermOfHumanRespawn = 5; //sec
+    private float TermOfHumanRespawn; //sec
     private float curTermOfHumanRespawn = 0;
-    private float HumanAISpeed = 10; // persec
+    private float HumanAISpeed; // persec
 
     private int score = 0;
-    private int FireExtinguishingScore = 10;
-    private int HumanHuntingScore = 10;
+    private int FireExtinguishingScore;
+    private int HumanHuntingScore;
 
     public GameObject enemyPrefeb;
     public Image worldTreeHealthBar;
     private float healthBarLen;
     private TextMeshProUGUI _textForScore;
     private TextMeshProUGUI _text;
+    private TextMeshProUGUI _notify;
     WorldTree _worldTree;
+    private WebManager _webManager;
     GameObject[] EnemySpawnPoints;
 
-    void Start()
+    private void Awake()
     {
-        timer = gameDuration;
+        _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
+        if (_webManager == null)
+        {
+            Debug.LogWarning("This scene has not contain Web Manager");
+        }
+
         _worldTree = GameObject.Find("WorldTree").GetComponent<WorldTree>();
         if (_worldTree == null)
         {
             Debug.Log("worldTree NULL");
         }
+    }
+    void Start()
+    {
+        timer = gameDuration;
+        
         
         _text = GameObject.Find("Text").GetComponent<TextMeshProUGUI>();
         _textForScore = GameObject.Find("TextForScore").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
+        _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
         healthBarLen = worldTreeHealthBar.rectTransform.rect.width;
         LevelOfDifficulty(20);
     }
@@ -58,8 +71,8 @@ public class WorldTreeManager : MonoBehaviour
         tpc.MoveSpeed = (float)(4 * (1 + (0.1 * difficulty)));
         tpc.SprintSpeed = (float)(8 * (1 + (0.1 * difficulty)));
 
-        FireExtinguishingScore = (int)(10 + difficulty);
-        HumanHuntingScore = (int)(10 + difficulty);
+        FireExtinguishingScore = (int)(10 * (difficulty + 1));
+        HumanHuntingScore = (int)(10 * (difficulty + 1));
     }
 
     private void Update()
@@ -110,6 +123,9 @@ public class WorldTreeManager : MonoBehaviour
     public void WorldTreeHitByFireOverflow()
     {
         _worldTree.HealthChange(-damageOfFireOverflow);
+        StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) => {
+            ShowTextFaded(_notify, res, 10f);
+        }));
     }
 
     void GameOver()
@@ -121,17 +137,17 @@ public class WorldTreeManager : MonoBehaviour
     public float GetHumanAISpeed() { return HumanAISpeed; }
     public float GetTermOfFireOverflow() { return TermOfFireOverflow; }
 
-    private void ShowTextFaded(TextMeshProUGUI t, string message)
+    private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;
         t.enabled = true;
         if (coroutine != null) { StopCoroutine(coroutine); }
-        coroutine = StartCoroutine(CoFadeOut(_text));
+        coroutine = StartCoroutine(CoFadeOut(_text, time));
     }
-    IEnumerator CoFadeOut(TextMeshProUGUI t)
+    IEnumerator CoFadeOut(TextMeshProUGUI t, float time)
     {
         float elapsedTime = 0f; // 누적 경과 시간
-        float fadedTime = 2f; // 총 소요 시간
+        float fadedTime = time; // 총 소요 시간
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
