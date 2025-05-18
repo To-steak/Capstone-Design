@@ -1,4 +1,4 @@
-ï»¿using Cinemachine;
+using Cinemachine;
 using UnityEngine;
 using System.Reflection;
 using System;
@@ -16,7 +16,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM 
     [RequireComponent(typeof(PlayerInput))]
 #endif
-    public class ThirdPersonController : MonoBehaviour
+    public class ThirdPersonD : MonoBehaviour
     {
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
@@ -245,7 +245,7 @@ namespace StarterAssets
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
                 _cinemachineTargetYaw, 0.0f);
 
-            // ì´í›„ë¶€í„° Aimì„ í–ˆì„ ë•Œ, ì¹´ë©”ë¼ íšŒì „ì— ê´€í•œ ì‘ì—…
+            // ÀÌÈÄºÎÅÍ AimÀ» ÇßÀ» ¶§, Ä«¸Ş¶ó È¸Àü¿¡ °üÇÑ ÀÛ¾÷
             if (_input.aim)
             {
                 Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
@@ -434,7 +434,6 @@ namespace StarterAssets
                 _animator.SetBool(_animIDAim, _input.aim);
             }
         }
-
         [SerializeField]
         LayerMask layer;
 
@@ -447,21 +446,6 @@ namespace StarterAssets
                     var hitTag = hit.collider.tag;
 
                     Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
-
-                    
-                    if (hit.collider.GetComponent<HumanAI>())
-                    {
-                        HumanAI targetEnemy = hit.collider.GetComponent<HumanAI>();
-                        Debug.Log("ray Hit HumanAI", hit.transform);
-                        targetEnemy.TakeDamage(40f);
-                    }
-
-                    if (hit.collider.GetComponent<HumanAI_Forest>())
-                    {
-                        HumanAI_Forest targetEnemy = hit.collider.GetComponent<HumanAI_Forest>();
-                        Debug.Log("ray Hit HumanAI", hit.transform);
-                        targetEnemy.TakeDamage(40f);
-                    }
                 }
             }
             _input.attackTriggered = false;

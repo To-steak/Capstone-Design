@@ -11,7 +11,7 @@ public class HumanAI_Forest : MonoBehaviour
 {
     private float Health = 100;
     private bool nearByTree = false;
-    private float loggingDamage = 20; // 10damage per loggingDelay
+    private float loggingDamage; // 10damage per loggingDelay
     private float loggingDelay = 2;
     private float curLoggingTime = 0;
 
@@ -97,8 +97,8 @@ public class HumanAI_Forest : MonoBehaviour
         if (nearByTree) { curState = state_ForestHumanAI.logging; }
         else if (!nearByTree && CheckTrees()) { curState = state_ForestHumanAI.patrol; }
         else if (!nearByTree && !CheckTrees()) { curState = state_ForestHumanAI.idle; }
-        Debug.Log(curState);
-        Debug.Log(nearByTree);
+        //Debug.Log(curState);
+        //Debug.Log(nearByTree);
 
         switch (curState)
         {
@@ -146,7 +146,7 @@ public class HumanAI_Forest : MonoBehaviour
         {
             nearByTree = true;
             targetTree = other.gameObject;
-            Debug.Log("nearbytree");
+            //Debug.Log("nearbytree");
         }
 
     }

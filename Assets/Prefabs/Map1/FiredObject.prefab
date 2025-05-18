@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2911552106846131049}
   m_Layer: 0
   m_Name: FiredObject
-  m_TagString: Fire
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -175,7 +175,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  fireTimeOut: 10
 --- !u!1 &3927406212528726499
 GameObject:
   m_ObjectHideFlags: 0
