@@ -4,10 +4,7 @@ namespace Waste
 {
     public class GameManager : MonoBehaviour
     {
-        public int difficulty;
-        
         public static GameManager Instance { get; private set; }
-
         [SerializeField] private GameObject _fieldPlane;
         [SerializeField] private int _enemyCount;
         [SerializeField] private LayerMask _groundMask;
