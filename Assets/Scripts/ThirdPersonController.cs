@@ -91,6 +91,7 @@ namespace StarterAssets
         [SerializeField] private LineRenderer aimLine;
         [SerializeField] private Transform leftElbow;
         [SerializeField] private Transform rightElbow;
+        [SerializeField] private float _attackRange;
 
         // interaction
         private Collider _interactableObject;
@@ -108,7 +109,6 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
-        private float _attackRange = 10f;
         Vector3 origin;
         Vector3 direction;
         Vector3 endPoint;
@@ -124,6 +124,7 @@ namespace StarterAssets
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
         private int _animIDAim;
+        private int _animIDAttack;
         private int _animIDInteract;
 
 #if ENABLE_INPUT_SYSTEM 
@@ -208,6 +209,7 @@ namespace StarterAssets
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animIDAim = Animator.StringToHash("Aim");
             _animIDInteract = Animator.StringToHash("Interact");
+            _animIDAttack = Animator.StringToHash("Attack");
         }
 
         private void GroundedCheck()
@@ -246,7 +248,7 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
 
             // 이후부터 Aim을 했을 때, 카메라 회전에 관한 작업
-            if (_input.aim)
+            if (_input.aim && Grounded)
             {
                 Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
@@ -332,7 +334,7 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded && !_input.aim)
+            if (Grounded)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
@@ -351,7 +353,7 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (!_input.aim && _input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -408,9 +410,7 @@ namespace StarterAssets
 
         private void Aim()
         {
-            if (!Grounded) return;
-
-            if (_input.cursorLocked && _input.aim)
+            if (_input.cursorLocked && _input.aim && Grounded)
             {
                 SwitchCinemachineCamera(1);
                 aimLine.enabled = true;
@@ -421,7 +421,6 @@ namespace StarterAssets
 
                 aimLine.SetPosition(0, origin);
                 aimLine.SetPosition(1, endPoint);
-
             }
             else
             {
@@ -431,7 +430,7 @@ namespace StarterAssets
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDAim, _input.aim);
+                _animator.SetBool(_animIDAim, _input.aim && Grounded);
             }
         }
 
@@ -442,7 +441,12 @@ namespace StarterAssets
         {
             if (_hasAnimator && _input.attackTriggered && _input.aim)
             {
+<<<<<<< Updated upstream
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange, layer))
+=======
+                aimLine.enabled = false;
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
+>>>>>>> Stashed changes
                 {
                     var hitTag = hit.collider.tag;
 
@@ -464,6 +468,7 @@ namespace StarterAssets
                     }
                 }
             }
+            _animator.SetBool(_animIDAttack, _input.attackTriggered);
             _input.attackTriggered = false;
         }
 
