@@ -441,18 +441,16 @@ namespace StarterAssets
         {
             if (_hasAnimator && _input.attackTriggered && _input.aim)
             {
-<<<<<<< Updated upstream
-                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange, layer))
-=======
                 aimLine.enabled = false;
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
->>>>>>> Stashed changes
+                // if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange, layer))
+                // 이 함수 안에서 layer를 사용하고 있지 않음
+                // 추가한 이유가 뭘까요
                 {
                     var hitTag = hit.collider.tag;
 
                     Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
 
-                    
                     if (hit.collider.GetComponent<HumanAI>())
                     {
                         HumanAI targetEnemy = hit.collider.GetComponent<HumanAI>();
