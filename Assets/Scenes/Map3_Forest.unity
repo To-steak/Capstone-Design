@@ -5315,6 +5315,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerArmature
       objectReference: {fileID: 0}
+    - target: {fileID: 2874641197028672748, guid: ebfc7aa3296aafc4fbec782b34212406, type: 3}
+      propertyPath: attackRange
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2874641197028672748, guid: ebfc7aa3296aafc4fbec782b34212406, type: 3}
+      propertyPath: attackInterval
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2874641197028672748, guid: ebfc7aa3296aafc4fbec782b34212406, type: 3}
+      propertyPath: attackLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 3547787007401858164, guid: ebfc7aa3296aafc4fbec782b34212406, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

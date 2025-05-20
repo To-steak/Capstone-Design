@@ -1984,7 +1984,19 @@ PrefabInstance:
       value: PlayerArmature
       objectReference: {fileID: 0}
     - target: {fileID: 6085432113875234238, guid: 2dada477eccff784caae7404b12cbe60, type: 3}
+      propertyPath: attackRange
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6085432113875234238, guid: 2dada477eccff784caae7404b12cbe60, type: 3}
       propertyPath: layer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 6085432113875234238, guid: 2dada477eccff784caae7404b12cbe60, type: 3}
+      propertyPath: attackInterval
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6085432113875234238, guid: 2dada477eccff784caae7404b12cbe60, type: 3}
+      propertyPath: attackLayer.m_Bits
       value: 64
       objectReference: {fileID: 0}
     m_RemovedComponents: []
