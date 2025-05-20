@@ -1,14 +1,16 @@
 using StarterAssets;
 using System;
 using System.Collections;
+using System.Text.RegularExpressions;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.Windows;
 
 public class ForestManager : MonoBehaviour
 {
-    private float gameDuration = 180f;
+    private float gameDuration = 60f;
     private float timer;
 
     private int allowTreeLogging = 10;
@@ -34,8 +36,10 @@ public class ForestManager : MonoBehaviour
     private TextMeshProUGUI _textForScore;
     private TextMeshProUGUI _text;
     private TextMeshProUGUI _notify;
-    private TextMeshProUGUI _gameOver;
+    private TextMeshProUGUI _time;
+    //private TextMeshProUGUI _gameOver;
     private WebManager _webManager;
+    private SystemManager _systemManager;
 
     public GameObject enemyPrefeb;
     GameObject[] EnemySpawnPoints;
@@ -47,7 +51,13 @@ public class ForestManager : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
-        LevelOfDifficulty(20);
+        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (_systemManager == null)
+        {
+            Debug.LogWarning("This scene has not contain System Manager");
+        }
+        LevelOfDifficulty(_systemManager.difficulty);
+        score = _systemManager.Score;
 
     }
     void Start()
@@ -57,7 +67,8 @@ public class ForestManager : MonoBehaviour
         _textForScore = GameObject.Find("TextForScore").GetComponent<TextMeshProUGUI>();
         _text = GameObject.Find("Text").GetComponent<TextMeshProUGUI>();
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
-        _gameOver = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
+        _time = GameObject.Find("Time").GetComponent<TextMeshProUGUI>();
+        //_gameOver = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
         curAllowTreeLogging = allowTreeLogging;
     }
@@ -93,6 +104,7 @@ public class ForestManager : MonoBehaviour
         _textForScore.text = "Score : " + score;
 
         timer -= Time.deltaTime;
+        _time.text = "Time : " + timer;
         if(timer <= 0 || curAllowTreeLogging <= 0)
         {
             GameOver();
@@ -111,7 +123,9 @@ public class ForestManager : MonoBehaviour
 
     private void GameOver()
     {
-        _gameOver.enabled = true;
+        //_gameOver.enabled = true;
+        _systemManager.Gameover();
+        _systemManager.Score = score;
     }
 
     private void EnemySpawn()
@@ -142,8 +156,9 @@ public class ForestManager : MonoBehaviour
         int i = 10 - curAllowTreeLogging;
         if (i <= 0) { i = 0; }
         StartCoroutine(_webManager.GetResponse("Forest", i, (res) => {
-            ShowTextFaded(_notify, res, 10f);
+            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
         }));
+        
     }
     public void seedPlanting()
     {
