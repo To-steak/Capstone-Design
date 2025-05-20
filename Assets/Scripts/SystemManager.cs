@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -33,7 +35,7 @@ public class SystemManager : MonoBehaviour
 
     void Start()
     {
-
+       
     }
 
     void Update()
@@ -52,6 +54,11 @@ public class SystemManager : MonoBehaviour
         {
             Debug.Log(res);
         }));
+
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        gameOverCanvas.SetActive(true);
     }
 
     public void InitUser()
@@ -61,21 +68,39 @@ public class SystemManager : MonoBehaviour
         userName = $"user@{Random.Range(0, 10000):D4}";
     }
 
+
     public void SceneLoad()
     {
-        // string currentScene = SceneManager.GetActiveScene().name;
-        // var scenes = new List<string> { "Map1_TreeGuard", "Map2_Trash", "Map3_Forest", "Map4_Waste" };
+        string currentScene = SceneManager.GetActiveScene().name;
+        var scenes = new List<string> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste"};
 
-        // if (!currentScene.Equals("Main"))
-        // {
-        //     scenes.Remove(currentScene);
-        // }
+        if (!currentScene.Equals("Main"))
+        {
+            scenes.Remove(currentScene);
+        }
 
-        // int randomIndex = Random.Range(0, scenes.Count);
-
-        // SceneManager.LoadScene(scenes[randomIndex]);
+        int randomIndex = Random.Range(0, scenes.Count);
+        
         difficulty++;
-        SceneManager.LoadScene("Map4_Waste");
+
+        StartCoroutine(LoadSceneC(scenes[randomIndex]));
+        //SceneManager.LoadScene(scenes[randomIndex]);
+
+        //SceneManager.LoadScene("Map4_Waste");
+    }
+
+    IEnumerator LoadSceneC(string scene)
+    {
+        SceneManager.LoadScene(scene);
+        yield return null;
+        AfterSceneLoad();
+    }
+    public void AfterSceneLoad()
+    {
+        Time.timeScale = 1f;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        gameOverCanvas.SetActive(false);
     }
 
     public void Ranking()

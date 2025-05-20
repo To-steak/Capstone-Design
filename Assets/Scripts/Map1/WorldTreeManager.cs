@@ -1,13 +1,15 @@
 using StarterAssets;
 using System;
 using System.Collections;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class WorldTreeManager : MonoBehaviour 
 {
-    private float gameDuration = 180f;
+    private float gameDuration = 60f;
     private float timer;
 
     private int damageOfFireOverflow;
@@ -28,9 +30,11 @@ public class WorldTreeManager : MonoBehaviour
     private TextMeshProUGUI _textForScore;
     private TextMeshProUGUI _text;
     private TextMeshProUGUI _notify;
-    private TextMeshProUGUI _gameover;
+    private TextMeshProUGUI _time;
+    //private TextMeshProUGUI _gameover;
     WorldTree _worldTree;
     private WebManager _webManager;
+    private SystemManager _systemManager;
     GameObject[] EnemySpawnPoints;
 
     private void Awake()
@@ -46,7 +50,14 @@ public class WorldTreeManager : MonoBehaviour
         {
             Debug.Log("worldTree NULL");
         }
-        LevelOfDifficulty(20);
+        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (_systemManager == null)
+        {
+            Debug.LogWarning("This scene has not contain System Manager");
+        }
+        LevelOfDifficulty(_systemManager.difficulty);
+        score = _systemManager.Score;
+
     }
     void Start()
     {
@@ -57,7 +68,8 @@ public class WorldTreeManager : MonoBehaviour
         _textForScore = GameObject.Find("TextForScore").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
-        _gameover = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
+        _time = GameObject.Find("Time").GetComponent<TextMeshProUGUI>();
+        //_gameover = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         healthBarLen = worldTreeHealthBar.rectTransform.rect.width;
     }
 
@@ -82,6 +94,7 @@ public class WorldTreeManager : MonoBehaviour
         _textForScore.text = "Score : " + score;
 
         timer -= Time.deltaTime;
+        _time.text = "Time : " + timer;
         if (timer <= 0 || _worldTree.GetHealth() <= 0)
         {
             GameOver();
@@ -127,13 +140,16 @@ public class WorldTreeManager : MonoBehaviour
         _worldTree.HealthChange(-damageOfFireOverflow);
         StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) =>
         {
-            ShowTextFaded(_notify, res, 10f);
+            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
         }));
     }
 
+    
     void GameOver()
     {
-        _gameover.enabled = true;
+        //_gameover.enabled = true;
+        _systemManager.Gameover();
+        _systemManager.Score = score;
     }
 
     Coroutine coroutine;
