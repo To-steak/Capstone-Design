@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: af3c5942650930541b4b6c13098a9a12
+timeCreated: 1488448438
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243810
+  packageName: Archer Elf Girl(v2)
+  packageVersion: 1.0
+  assetPath: Assets/Archer Girl/Shaders/glass/Shaders/Glass Shaders/Glass Double
+    Sided Fast.shader
+  uploadId: 554449

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: fcbcef39ce1173841b33c5cff79ac2b6
+timeCreated: 1488448301
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243810
+  packageName: Archer Elf Girl(v2)
+  packageVersion: 1.0
+  assetPath: Assets/Archer Girl/Shaders/glass/Shaders/Glass Shaders/Glass Double
+    Sided Advanced Blend.shader
+  uploadId: 554449

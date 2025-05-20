@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5e2f1832b11691740aa7d4ca34aad6d1
+timeCreated: 1488448260
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243810
+  packageName: Archer Elf Girl(v2)
+  packageVersion: 1.0
+  assetPath: Assets/Archer Girl/Shaders/glass/Shaders/Glass Shaders/Glass Advanced
+    Blend.shader
+  uploadId: 554449

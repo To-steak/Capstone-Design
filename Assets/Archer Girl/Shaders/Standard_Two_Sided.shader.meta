@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a74ad3253a2022e4b86f3c8794921a14
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243810
+  packageName: Archer Elf Girl(v2)
+  packageVersion: 1.0
+  assetPath: Assets/Archer Girl/Shaders/Standard_Two_Sided.shader
+  uploadId: 554449
