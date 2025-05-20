@@ -8,7 +8,7 @@ namespace Waste
         public static EnemyPoolManager Instance { get; private set;}
 
         [SerializeField] private GameObject _enemyPrefab;
-        [SerializeField] private int _poolSize = 10;
+        [SerializeField] private int _poolSize;
 
         private Queue<GameObject> _pool = new Queue<GameObject>();
 

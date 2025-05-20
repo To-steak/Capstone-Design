@@ -22,7 +22,7 @@ namespace Waste
 
         void Start()
         {
-            InitializeTree();
+            InitializeEnemy();
         }
 
         void Update()
@@ -30,7 +30,7 @@ namespace Waste
 
         }
 
-        private void InitializeTree()
+        private void InitializeEnemy()
         {
             Vector3 center = _fieldPlane.transform.position;
             Vector3 scale = _fieldPlane.transform.localScale;

@@ -2,6 +2,8 @@
 using UnityEngine;
 using System.Reflection;
 using System;
+using Waste;
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -91,7 +93,10 @@ namespace StarterAssets
         [SerializeField] private LineRenderer aimLine;
         [SerializeField] private Transform leftElbow;
         [SerializeField] private Transform rightElbow;
-        [SerializeField] private float _attackRange;
+        [SerializeField] private float attackRange;
+        [SerializeField] private LayerMask attackLayer;
+        [SerializeField] private float baseDamage;
+        [SerializeField] private float attackInterval = 2f;
 
         // interaction
         private Collider _interactableObject;
@@ -109,6 +114,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        private float _nextAttackTime;
         Vector3 origin;
         Vector3 direction;
         Vector3 endPoint;
@@ -186,12 +192,19 @@ namespace StarterAssets
         private void Update()
         {
             _hasAnimator = TryGetComponent(out _animator);
+            _nextAttackTime = Mathf.Min(_nextAttackTime + Time.deltaTime, attackInterval);
 
             JumpAndGravity();
             GroundedCheck();
             Move();
             Aim();
-            Attack(origin, direction);
+
+            if (_hasAnimator && _input.attackTriggered && _input.aim)
+            {
+                Attack(origin, direction);
+            }
+            _input.attackTriggered = false;
+
             Interact();
         }
 
@@ -417,7 +430,7 @@ namespace StarterAssets
 
                 origin = Vector3.Lerp(leftElbow.position, rightElbow.position, 0.5f);
                 direction = _mainCamera.transform.TransformDirection(Vector3.forward);
-                endPoint = origin + direction * _attackRange;
+                endPoint = origin + direction * attackRange;
 
                 aimLine.SetPosition(0, origin);
                 aimLine.SetPosition(1, endPoint);
@@ -434,21 +447,15 @@ namespace StarterAssets
             }
         }
 
-        [SerializeField]
-        LayerMask layer;
-
         private void Attack(Vector3 origin, Vector3 direction)
         {
-            if (_hasAnimator && _input.attackTriggered && _input.aim)
+            if (_nextAttackTime >= attackInterval)
             {
-                aimLine.enabled = false;
-                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
-                // if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange, layer))
-                // 이 함수 안에서 layer를 사용하고 있지 않음
-                // 추가한 이유가 뭘까요
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, attackRange, attackLayer))
                 {
-                    var hitTag = hit.collider.tag;
+                    _animator.SetTrigger(_animIDAttack);
 
+                    var hitTag = hit.collider.tag;
                     Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
 
                     if (hit.collider.GetComponent<HumanAI>())
@@ -464,10 +471,19 @@ namespace StarterAssets
                         Debug.Log("ray Hit HumanAI", hit.transform);
                         targetEnemy.TakeDamage(40f);
                     }
+
+                    if (hit.collider.GetComponentInParent<Enemy>() is Enemy enemy)
+                    {
+                        float damage = baseDamage;
+                        if (hit.collider.CompareTag("Head"))
+                        {
+                            damage *= 2;
+                        }
+                        enemy.TakeDamage(damage);
+                    }
                 }
+                _nextAttackTime = 0f;
             }
-            _animator.SetBool(_animIDAttack, _input.attackTriggered);
-            _input.attackTriggered = false;
         }
 
         private void Interact()
