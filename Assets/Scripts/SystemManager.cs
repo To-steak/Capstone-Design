@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 using System.Collections;
+=======
+using System;
+>>>>>>> Stashed changes
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -65,20 +69,25 @@ public class SystemManager : MonoBehaviour
     {
         Score = 0;
         difficulty = 0;
-        userName = $"user@{Random.Range(0, 10000):D4}";
+        userName = $"user@{UnityEngine.Random.Range(0, 10000):D4}";
     }
 
 
     public void SceneLoad()
     {
         string currentScene = SceneManager.GetActiveScene().name;
+<<<<<<< Updated upstream
         var scenes = new List<string> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste"};
+=======
+        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
+>>>>>>> Stashed changes
 
         if (!currentScene.Equals("Main"))
         {
             scenes.Remove(currentScene);
         }
 
+<<<<<<< Updated upstream
         int randomIndex = Random.Range(0, scenes.Count);
         
         difficulty++;
@@ -101,6 +110,12 @@ public class SystemManager : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         gameOverCanvas.SetActive(false);
+=======
+        int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
+
+        SceneManager.LoadScene(scenes[randomIndex]);
+        difficulty++;
+>>>>>>> Stashed changes
     }
 
     public void Ranking()

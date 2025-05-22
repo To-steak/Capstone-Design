@@ -26,7 +26,7 @@ namespace Waste
 
             for (int i = 0; i < _poolSize; i++)
             {
-                GameObject enemy = Instantiate(_enemyPrefab);
+                GameObject enemy = Instantiate(_enemyPrefab, transform);
                 enemy.SetActive(false);
                 _pool.Enqueue(enemy);
             }
@@ -44,6 +44,7 @@ namespace Waste
         public void ReturnEnemy(GameObject enemy)
         {
             enemy.SetActive(false);
+            enemy.transform.SetParent(transform);
             _pool.Enqueue(enemy);
         }
     }
