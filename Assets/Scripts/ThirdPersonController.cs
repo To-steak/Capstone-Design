@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Reflection;
 using System;
-using Waste;
+
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -267,7 +267,7 @@ namespace StarterAssets
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
                 float clamped = Mathf.Clamp(_cinemachineTargetPitch, spineMin, spineMax);
-                spine.localRotation = Quaternion.Euler(0f, 0f, clamped);
+                spine.localRotation = Quaternion.Euler(0f, -clamped, 0f);
             }
         }
 
@@ -451,10 +451,9 @@ namespace StarterAssets
         {
             if (_nextAttackTime >= attackInterval)
             {
+                _animator.SetTrigger(_animIDAttack);
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, attackRange, attackLayer))
                 {
-                    _animator.SetTrigger(_animIDAttack);
-
                     var hitTag = hit.collider.tag;
                     Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
 
@@ -472,7 +471,7 @@ namespace StarterAssets
                         targetEnemy.TakeDamage(40f);
                     }
 
-                    if (hit.collider.GetComponentInParent<Enemy>() is Enemy enemy)
+                    if (hit.collider.GetComponentInParent<Waste.Enemy>() is Waste.Enemy enemy)
                     {
                         float damage = baseDamage;
                         if (hit.collider.CompareTag("Head"))
