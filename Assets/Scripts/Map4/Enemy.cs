@@ -37,7 +37,7 @@ namespace Waste
             _nextAttackTime = 0f;
             if (SystemManager.Instance != null)
             {
-                attackDamage = 10 + 1 * SystemManager.Instance.difficulty;             
+                attackDamage = 10 + 1 * SystemManager.Instance.difficulty;
             }
 
             if (SystemManager.Instance == null)
@@ -110,16 +110,14 @@ namespace Waste
 
         private IEnumerator AttackRoutine()
         {
-            // 버그있음
             _isAttacking = true;
             _agent.isStopped = true;
 
             _animator.SetTrigger("Attack");
             _nextAttackTime = 0f;
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(1.0f);
 
-            // (2) 아직 플레이어가 사정거리 내에 있으면 데미지
             if (_playerTransform != null &&
                 Vector3.Distance(transform.position, _playerTransform.position) <= attackRange)
             {
@@ -127,10 +125,7 @@ namespace Waste
                 if (ph != null)
                     ph.TakeDamage(attackDamage);
             }
-
-            // (3) 나머지 애니 끝까지 기다림
-            yield return new WaitForSeconds(0.8f);
-
+            
             _agent.isStopped = false;
             _isAttacking = false;
         }
