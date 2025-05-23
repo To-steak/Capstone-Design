@@ -27,6 +27,7 @@ namespace Waste
         private bool _isDead;
         private float _nextAttackTime = 0f;
         private bool _isAttacking = false;
+        private PlayerHealth _playerHealth;
 
         void Awake()
         {
@@ -64,13 +65,15 @@ namespace Waste
                 Die();
             }
 
-            if (_isDead || _isAttacking)
+            if (_isDead)
             {
                 return;
             }
 
             // 애니메이터에 speed 전달
             _animator.SetFloat("Speed", _agent.velocity.magnitude);
+
+            // 공격 딜레이 계산
             _nextAttackTime += Time.deltaTime;
 
             // 매 프레임마다 반경 내 플레이어 검색
@@ -83,8 +86,19 @@ namespace Waste
                 }
 
                 float distance = Vector3.Distance(transform.position, detected.position);
-                if (distance <= attackRange && _nextAttackTime >= attackInterval)
+                if (distance <= attackRange && _nextAttackTime >= attackInterval && !_isAttacking)
                 {
+                    _isAttacking = true;
+                    _agent.isStopped = true;
+                    _animator.SetTrigger("Attack");
+                    _nextAttackTime = 0f;
+                    var ph = _playerTransform.GetComponent<PlayerHealth>();
+
+                    if (ph != null)
+                    {
+                        ph.TakeDamage(attackDamage);
+                    }
+
                     StartCoroutine(AttackRoutine());
                 }
                 else
@@ -110,22 +124,8 @@ namespace Waste
 
         private IEnumerator AttackRoutine()
         {
-            _isAttacking = true;
-            _agent.isStopped = true;
+            yield return new WaitForSeconds(2.3f);
 
-            _animator.SetTrigger("Attack");
-            _nextAttackTime = 0f;
-
-            yield return new WaitForSeconds(1.0f);
-
-            if (_playerTransform != null &&
-                Vector3.Distance(transform.position, _playerTransform.position) <= attackRange)
-            {
-                var ph = _playerTransform.GetComponent<PlayerHealth>();
-                if (ph != null)
-                    ph.TakeDamage(attackDamage);
-            }
-            
             _agent.isStopped = false;
             _isAttacking = false;
         }
@@ -151,6 +151,7 @@ namespace Waste
 
             StartCoroutine(DeathDelayRoutine());
         }
+
         private IEnumerator DeathDelayRoutine()
         {
             yield return new WaitForSeconds(3f);

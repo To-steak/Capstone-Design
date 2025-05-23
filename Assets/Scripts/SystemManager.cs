@@ -67,31 +67,32 @@ public class SystemManager : MonoBehaviour
     public void InitUser()
     {
         Score = 0;
-        difficulty = 0;
+        difficulty = 1;
         userName = $"user@{UnityEngine.Random.Range(0, 10000):D4}";
+        gameOverCanvas.SetActive(false);
+        Time.timeScale = 1.0f;
     }
 
 
     public void SceneLoad()
     {
-        string currentScene = SceneManager.GetActiveScene().name;
+        // string currentScene = SceneManager.GetActiveScene().name;
 
-        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
+        // List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
 
-        if (!currentScene.Equals("Main"))
-        {
-            scenes.Remove(currentScene);
-        }
+        // if (!currentScene.Equals("Main"))
+        // {
+        //     scenes.Remove(currentScene);
+        // }
 
 
-        int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
+        // int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
         
-        difficulty++;
+        // difficulty++;
 
-        StartCoroutine(LoadSceneC(scenes[randomIndex]));
-        //SceneManager.LoadScene(scenes[randomIndex]);
+        // StartCoroutine(LoadSceneC(scenes[randomIndex]));
 
-        //SceneManager.LoadScene("Map4_Waste");
+        SceneManager.LoadScene("Map4_Waste");
     }
 
     IEnumerator LoadSceneC(string scene)

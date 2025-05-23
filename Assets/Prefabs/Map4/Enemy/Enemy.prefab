@@ -531,13 +531,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHP: 100
-  attackRange: 1
+  attackRange: 3
   attackInterval: 3.5
   wanderRadius: 5
   minWanderInterval: 5
   maxWanderInterval: 8
   playerTag: Player
-  attackDamage: 35
+  attackDamage: 90
 --- !u!1 &2165939312528900967
 GameObject:
   m_ObjectHideFlags: 0
