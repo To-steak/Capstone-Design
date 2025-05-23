@@ -43,7 +43,7 @@ public class HumanAI : MonoBehaviour
         }
         
 
-        GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Fire");
+        GameObject[] waypointsGameObject = GameObject.FindGameObjectsWithTag("Interactable");
         waypoints = new Transform[waypointsGameObject.Length];
         for(int i = 0; i < waypointsGameObject.Length; i++)
         {
@@ -61,7 +61,7 @@ public class HumanAI : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //Debug.Log("this : " + gameObject.name + " other : " + other.name + other.tag);
-        if (other.CompareTag("Fire"))
+        if (other.CompareTag("Interactable"))
         {
             FireObject place = other.gameObject.GetComponent<FireObject>();
             if (!place.GetLit())

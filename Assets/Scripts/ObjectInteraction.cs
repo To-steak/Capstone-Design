@@ -1,4 +1,3 @@
-using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -24,8 +23,10 @@ public class ObjectInteraction : MonoBehaviour
 
     public void LLMResponse()
     {
+        if (_webManager == null) return;
+        
         StartCoroutine(_webManager.GetResponse("World Tree", 9, (res) => {
-            Debug.Log("" + res);
+            Debug.Log(res);
         }));
     }
 
@@ -33,5 +34,4 @@ public class ObjectInteraction : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-  
 }

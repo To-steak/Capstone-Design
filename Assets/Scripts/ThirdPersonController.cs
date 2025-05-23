@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Reflection;
 using System;
 
+
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -89,6 +91,12 @@ namespace StarterAssets
 
         [Tooltip("Attack")]
         [SerializeField] private LineRenderer aimLine;
+        [SerializeField] private Transform leftElbow;
+        [SerializeField] private Transform rightElbow;
+        [SerializeField] private float attackRange;
+        [SerializeField] private LayerMask attackLayer;
+        [SerializeField] private float baseDamage;
+        [SerializeField] private float attackInterval = 2f;
 
         // interaction
         private Collider _interactableObject;
@@ -106,7 +114,10 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
-        private float _attackRange = 10f;
+        private float _nextAttackTime;
+        Vector3 origin;
+        Vector3 direction;
+        Vector3 endPoint;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -119,6 +130,7 @@ namespace StarterAssets
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
         private int _animIDAim;
+        private int _animIDAttack;
         private int _animIDInteract;
 
 #if ENABLE_INPUT_SYSTEM 
@@ -180,11 +192,19 @@ namespace StarterAssets
         private void Update()
         {
             _hasAnimator = TryGetComponent(out _animator);
+            _nextAttackTime = Mathf.Min(_nextAttackTime + Time.deltaTime, attackInterval);
 
             JumpAndGravity();
             GroundedCheck();
             Move();
             Aim();
+
+            if (_hasAnimator && _input.attackTriggered && _input.aim)
+            {
+                Attack(origin, direction);
+            }
+            _input.attackTriggered = false;
+
             Interact();
         }
 
@@ -202,6 +222,7 @@ namespace StarterAssets
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animIDAim = Animator.StringToHash("Aim");
             _animIDInteract = Animator.StringToHash("Interact");
+            _animIDAttack = Animator.StringToHash("Attack");
         }
 
         private void GroundedCheck()
@@ -240,13 +261,13 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
 
             // 이후부터 Aim을 했을 때, 카메라 회전에 관한 작업
-            if (_input.aim)
+            if (_input.aim && Grounded)
             {
                 Quaternion targetRotation = Quaternion.Euler(0.0f, _cinemachineTargetYaw, 0.0f);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
                 float clamped = Mathf.Clamp(_cinemachineTargetPitch, spineMin, spineMax);
-                spine.localRotation = Quaternion.Euler(0f, 0f, clamped);
+                spine.localRotation = Quaternion.Euler(0f, -clamped, 0f);
             }
         }
 
@@ -326,7 +347,7 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded && !_input.aim)
+            if (Grounded)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
@@ -345,7 +366,7 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (!_input.aim && _input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -402,25 +423,17 @@ namespace StarterAssets
 
         private void Aim()
         {
-            // virtual cam을 Look at 하기
-            // 잠겨있을 때만 aim을 할 수 있어야 한다.
-
-            if (_input.cursorLocked && _input.aim)
+            if (_input.cursorLocked && _input.aim && Grounded)
             {
                 SwitchCinemachineCamera(1);
                 aimLine.enabled = true;
-                // Vector3 origin = _mainCamera.transform.position;
-                // 왼손과 오른손을 기준으로 direction을 계산하고 linerenderer를 쏘면 더 정확할 듯
-                Vector3 origin = aimLine.transform.position;
-                Vector3 direction = aimLine.transform.forward;
-                Vector3 endPoint = origin + direction * _attackRange;
+
+                origin = Vector3.Lerp(leftElbow.position, rightElbow.position, 0.5f);
+                direction = _mainCamera.transform.TransformDirection(Vector3.forward);
+                endPoint = origin + direction * attackRange;
+
                 aimLine.SetPosition(0, origin);
                 aimLine.SetPosition(1, endPoint);
-
-                if (Physics.Raycast(origin, direction, out RaycastHit hit, _attackRange))
-                {
-                    // 미구현
-                }
             }
             else
             {
@@ -430,18 +443,45 @@ namespace StarterAssets
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDAim, _input.aim);
+                _animator.SetBool(_animIDAim, _input.aim && Grounded);
             }
         }
 
-        private void Attack()
+        private void Attack(Vector3 origin, Vector3 direction)
         {
-            if (_hasAnimator)
+            if (_nextAttackTime >= attackInterval)
             {
-                if (_input.attack)
+                _animator.SetTrigger(_animIDAttack);
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, attackRange, attackLayer))
                 {
-                    // implement
+                    var hitTag = hit.collider.tag;
+                    Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
+
+                    if (hit.collider.GetComponent<HumanAI>())
+                    {
+                        HumanAI targetEnemy = hit.collider.GetComponent<HumanAI>();
+                        Debug.Log("ray Hit HumanAI", hit.transform);
+                        targetEnemy.TakeDamage(40f);
+                    }
+
+                    if (hit.collider.GetComponent<HumanAI_Forest>())
+                    {
+                        HumanAI_Forest targetEnemy = hit.collider.GetComponent<HumanAI_Forest>();
+                        Debug.Log("ray Hit HumanAI", hit.transform);
+                        targetEnemy.TakeDamage(40f);
+                    }
+
+                    if (hit.collider.GetComponentInParent<Waste.Enemy>() is Waste.Enemy enemy)
+                    {
+                        float damage = baseDamage;
+                        if (hit.collider.CompareTag("Head"))
+                        {
+                            damage *= 2;
+                        }
+                        enemy.TakeDamage(damage);
+                    }
                 }
+                _nextAttackTime = 0f;
             }
         }
 
@@ -464,7 +504,7 @@ namespace StarterAssets
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Interactable") || other.gameObject.CompareTag("Fire"))
+            if (other.gameObject.CompareTag("Interactable"))
             {
                 _interactableObject = other;
             }
@@ -472,7 +512,7 @@ namespace StarterAssets
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.CompareTag("Interactable") || other.gameObject.CompareTag("Fire"))
+            if (other.gameObject.CompareTag("Interactable"))
             {
                 _interactableObject = null;
             }
