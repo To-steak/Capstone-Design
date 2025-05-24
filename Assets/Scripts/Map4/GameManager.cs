@@ -1,13 +1,20 @@
+using TMPro;
 using UnityEngine;
+using System.Text.RegularExpressions;
+using System.Collections;
+
 
 namespace Waste
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
+        public TMP_Text scoreAndTime;
+        public TMP_Text LLMText;
         [SerializeField] private Terrain _terrain;
         [SerializeField] private int _enemyCount;
         [SerializeField] private LayerMask _groundMask;
+        [SerializeField] private int _interval;
 
         void Awake()
         {
@@ -23,11 +30,36 @@ namespace Waste
         void Start()
         {
             InitializeEnemy();
+            StartCoroutine(RequestLLM());
         }
 
         void Update()
         {
 
+        }
+
+        private IEnumerator RequestLLM()
+        {
+            while (true)
+            {
+                if (WebManager.Instance != null)
+                {
+                    // GetResponse 코루틴이 완료될 때까지 기다렸다가,
+                    yield return WebManager.Instance.GetResponse("Water", 1, OnResponse);
+                }
+
+                // 10초 대기
+                yield return _interval;
+            }
+        }
+
+        private void OnResponse(string result)
+        {
+            if (!string.IsNullOrEmpty(result))
+            {
+                string pattern = @"<think>[\s\S]*?</think>";
+                LLMText.text = Regex.Replace(result, pattern, string.Empty);
+            }
         }
 
         private void InitializeEnemy()
