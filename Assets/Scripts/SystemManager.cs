@@ -76,7 +76,7 @@ public class SystemManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
-        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
+        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest"};
 
         if (!currentScene.Equals("Main"))
         {

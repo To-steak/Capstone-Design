@@ -19,6 +19,7 @@ public class WorldTreeManager : MonoBehaviour
     private float TermOfHumanRespawn; //sec
     private float curTermOfHumanRespawn = 0;
     private float HumanAISpeed; // persec
+    private float humanAIHP;
 
     private int score = 0;
     private int FireExtinguishingScore;
@@ -39,7 +40,7 @@ public class WorldTreeManager : MonoBehaviour
 
     private void Awake()
     {
-        _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
+        if(GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
             Debug.LogWarning("This scene has not contain Web Manager");
@@ -50,13 +51,19 @@ public class WorldTreeManager : MonoBehaviour
         {
             Debug.Log("worldTree NULL");
         }
-        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (GameObject.Find("SystemManager")) { _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>(); }
         if (_systemManager == null)
         {
             Debug.LogWarning("This scene has not contain System Manager");
+            LevelOfDifficulty(5);
+            score = 0;
         }
-        LevelOfDifficulty(_systemManager.difficulty);
-        score = _systemManager.Score;
+        else
+        {
+            LevelOfDifficulty(_systemManager.difficulty);
+            score = _systemManager.Score;
+        }
+        
 
     }
     void Start()
@@ -79,14 +86,15 @@ public class WorldTreeManager : MonoBehaviour
         TermOfHumanRespawn = (float)(10 - (0.15 * difficulty));
         damageOfFireOverflow = (int)(10 + (0.5 * difficulty));
         TermOfFireOverflow = (float)(20 - (0.25 * difficulty));
-        HumanAISpeed = (float)(3 * (1 + (0.1 * difficulty)));
+        HumanAISpeed = (float)(4 * (1 + (0.1 * difficulty)));
+        humanAIHP = 80 + (10 * difficulty);
 
         ThirdPersonController tpc = GameObject.FindGameObjectWithTag("Player").GetComponent<ThirdPersonController>();
         tpc.MoveSpeed = (float)(4 * (1 + (0.1 * difficulty)));
         tpc.SprintSpeed = (float)(8 * (1 + (0.1 * difficulty)));
 
-        FireExtinguishingScore = (int)(10 * (difficulty + 1));
-        HumanHuntingScore = (int)(10 * (difficulty + 1));
+        FireExtinguishingScore = (int)(10 * (difficulty));
+        HumanHuntingScore = (int)(10 * (difficulty));
     }
 
     private void Update()
@@ -95,9 +103,13 @@ public class WorldTreeManager : MonoBehaviour
 
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
-        if (timer <= 0 || _worldTree.GetHealth() <= 0)
+        if (_worldTree.GetHealth() <= 0)
         {
             GameOver();
+        }
+        else if(timer <= 0)
+        {
+            GameClear();
         }
         
         worldTreeHealthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(healthBarLen * _worldTree.GetHealth() / 100, 20); // UI worldTreeHealthBar
@@ -152,10 +164,16 @@ public class WorldTreeManager : MonoBehaviour
         _systemManager.Score = score;
     }
 
-    Coroutine coroutine;
+    void GameClear()
+    {
+
+    }
+    
     public float GetHumanAISpeed() { return HumanAISpeed; }
     public float GetTermOfFireOverflow() { return TermOfFireOverflow; }
+    public float GetHumanAIHP() { return humanAIHP; }
 
+    Coroutine coroutine;
     private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;

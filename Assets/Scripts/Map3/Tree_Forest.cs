@@ -2,6 +2,8 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.UI.Image;
+using Waste;
 
 public class Tree_Forest : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class Tree_Forest : MonoBehaviour
 
     private GameObject _treePlace;
     private ForestManager _forestManager;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -26,8 +29,8 @@ public class Tree_Forest : MonoBehaviour
     }
     void Start()
     {
-        minSeedRegenTerm = 10;
-        maxSeedRegenTerm = 30;
+        minSeedRegenTerm = 5;
+        maxSeedRegenTerm = 40;
         curSeedRegenTerm = UnityEngine.Random.Range(minSeedRegenTerm, maxSeedRegenTerm);
 
         
@@ -48,16 +51,19 @@ public class Tree_Forest : MonoBehaviour
         {
             SeedRegen();
         }
-        
     }
 
+    [SerializeField] private LayerMask _groundMask;
     private void SeedRegen()
     {
-        
+
         if (curSeedRegenTerm <= 0)
         {
-            Vector3 randomVec = new Vector3(UnityEngine.Random.Range(2, 8), -this.transform.position.y + 2, UnityEngine.Random.Range(2, 8));
-            Instantiate(_seed, this.transform.position + randomVec, Quaternion.identity);
+            Vector3 randomVecSpawnStartPoint = new Vector3(this.transform.position.x + UnityEngine.Random.Range(2, 8), 100f, this.transform.position.z + UnityEngine.Random.Range(2, 8));
+            if (Physics.Raycast(randomVecSpawnStartPoint, Vector3.down, out RaycastHit hit, 300f, _groundMask))
+            {
+                Instantiate(_seed, hit.point + new Vector3(0, 1, 0), Quaternion.identity);
+            }
             _forestManager.AddCurRegenSeeds(1);
             curSeedRegenTerm = UnityEngine.Random.Range(minSeedRegenTerm, maxSeedRegenTerm);
         }
