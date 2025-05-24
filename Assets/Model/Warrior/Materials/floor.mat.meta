@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b25b957bda40218419f684fc131196a6
+timeCreated: 1658908967
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251039
+  packageName: Warrior + Axe
+  packageVersion: 1.0
+  assetPath: Assets/Model/Warrior/Materials/floor.mat
+  uploadId: 573709

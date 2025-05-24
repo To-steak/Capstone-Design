@@ -143,8 +143,8 @@ namespace StarterAssets
 
         private const float _threshold = 0.01f;
 
-        private bool _hasAnimator;
-
+        private bool _hasAnimator;     
+        
         private bool IsCurrentDeviceMouse
         {
             get
@@ -457,18 +457,31 @@ namespace StarterAssets
                     var hitTag = hit.collider.tag;
                     Debug.Log($"Hit: {hit.collider.gameObject.name}, tag: {hitTag}");
 
-                    if (hit.collider.GetComponent<HumanAI>())
+                    if (hit.collider.GetComponentInParent<HumanAI>() is HumanAI targetEnemy)
                     {
-                        HumanAI targetEnemy = hit.collider.GetComponent<HumanAI>();
                         Debug.Log("ray Hit HumanAI", hit.transform);
-                        targetEnemy.TakeDamage(40f);
+                        if (hit.collider.CompareTag("Head"))
+                        {
+                            targetEnemy.TakeDamage(baseDamage * 2f);
+                        }
+                        else if (hit.collider.CompareTag("Body"))
+                        {
+                            targetEnemy.TakeDamage(baseDamage);
+                        }
+                        
                     }
 
-                    if (hit.collider.GetComponent<HumanAI_Forest>())
+                    if (hit.collider.GetComponentInParent<HumanAI_Forest>() is HumanAI_Forest targetEnemy_Forest)
                     {
-                        HumanAI_Forest targetEnemy = hit.collider.GetComponent<HumanAI_Forest>();
                         Debug.Log("ray Hit HumanAI", hit.transform);
-                        targetEnemy.TakeDamage(40f);
+                        if (hit.collider.CompareTag("Head"))
+                        {
+                            targetEnemy_Forest.TakeDamage(baseDamage * 2f);
+                        }
+                        else if (hit.collider.CompareTag("Body"))
+                        {
+                            targetEnemy_Forest.TakeDamage(baseDamage);
+                        }
                     }
 
                     if (hit.collider.GetComponentInParent<Waste.Enemy>() is Waste.Enemy enemy)

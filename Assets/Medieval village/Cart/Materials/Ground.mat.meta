@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fb0d1c9436c95e94988adecdde62badc
+timeCreated: 1466850580
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 65835
+  packageName: Wooden cart
+  packageVersion: 1.0
+  assetPath: Assets/Medieval village/Cart/Materials/Ground.mat
+  uploadId: 124225

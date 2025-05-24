@@ -21,6 +21,8 @@ public class ForestManager : MonoBehaviour
     private float curTermOfHumanRespawn = 0;
     private float HumanAISpeed; // persec
     private float HumanAiLogDamage;
+    private float humanAIHP;
+    private int humanAIRegenOnceOfTime;
 
     private int maxRegenSeeds = 20;
     private int curRegenSeeds = 0;
@@ -37,6 +39,7 @@ public class ForestManager : MonoBehaviour
     private TextMeshProUGUI _text;
     private TextMeshProUGUI _notify;
     private TextMeshProUGUI _time;
+    private TextMeshProUGUI _treeLife;
     //private TextMeshProUGUI _gameOver;
     private WebManager _webManager;
     private SystemManager _systemManager;
@@ -46,18 +49,23 @@ public class ForestManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
-        _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
+        if (GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
-        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (GameObject.Find("SystemManager")) { _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>(); }
         if (_systemManager == null)
         {
             Debug.LogWarning("This scene has not contain System Manager");
+            LevelOfDifficulty(5);
+            score = 0;
         }
-        LevelOfDifficulty(_systemManager.difficulty);
-        score = _systemManager.Score;
+        else
+        {
+            LevelOfDifficulty(_systemManager.difficulty);
+            score = _systemManager.Score;
+        }
 
     }
     void Start()
@@ -68,6 +76,7 @@ public class ForestManager : MonoBehaviour
         _text = GameObject.Find("Text").GetComponent<TextMeshProUGUI>();
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
         _time = GameObject.Find("Time").GetComponent<TextMeshProUGUI>();
+        _treeLife = GameObject.Find("TreeLife").GetComponent<TextMeshProUGUI>();
         //_gameOver = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
         curAllowTreeLogging = allowTreeLogging;
@@ -78,7 +87,9 @@ public class ForestManager : MonoBehaviour
         maxHumanAI = (int)(5 + (0.4 * difficulty));
         TermOfHumanRespawn = (float)(10 - (0.15 * difficulty));
         HumanAiLogDamage = (float)(10 + (difficulty));
-        HumanAISpeed = (float)(3 * (1 + (0.1 * difficulty)));
+        HumanAISpeed = (float)(4 * (1 + (0.1 * difficulty)));
+        humanAIHP = 80 + (10 * difficulty);
+        humanAIRegenOnceOfTime = (int)(3 + System.Math.Truncate(difficulty / 5));
 
         ThirdPersonController tpc = GameObject.FindGameObjectWithTag("Player").GetComponent<ThirdPersonController>();
         tpc.MoveSpeed = (float)(4 * (1 + (0.05 * difficulty)));
@@ -102,18 +113,24 @@ public class ForestManager : MonoBehaviour
     void Update()
     {
         _textForScore.text = "Score : " + score;
-
+        _treeLife.text = "Tree Life : " + curAllowTreeLogging;
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
-        if(timer <= 0 || curAllowTreeLogging <= 0)
+        if(curAllowTreeLogging <= 0)
         {
             GameOver();
         }
+        else if(timer <= 0)
+        {
+            GameClear();
+        }
+
         if (curHumanAI < maxHumanAI && curTermOfHumanRespawn <= 0)
         { //enemy spawn
-            EnemySpawn();
-            EnemySpawn();
-            EnemySpawn();
+            for(int i = humanAIRegenOnceOfTime; i > 0; i--)
+            {
+                EnemySpawn();
+            }
         }
         else if (curHumanAI < maxHumanAI)
         {
@@ -126,6 +143,11 @@ public class ForestManager : MonoBehaviour
         //_gameOver.enabled = true;
         _systemManager.Gameover();
         _systemManager.Score = score;
+    }
+
+    private void GameClear()
+    {
+
     }
 
     private void EnemySpawn()
@@ -208,4 +230,5 @@ public class ForestManager : MonoBehaviour
     public int GetCurRegenSeeds() { return curRegenSeeds; }
     public void AddCurRegenSeeds(int i) { curRegenSeeds += i; }
     public bool IsSeedRegenPossible() { return curRegenSeeds < maxRegenSeeds; }
+    public float GetHumanAIHP() {  return humanAIHP; }
 }
