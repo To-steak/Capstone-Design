@@ -6,10 +6,12 @@ using UnityEngine.Networking;
 
 public class WebManager : MonoBehaviour
 {
+    public static WebManager Instance;
     private static string url = "http://localhost:8000/";
 
     void Awake()
     {
+        Instance = this;
         DontDestroyOnLoad(this);
     }
 
