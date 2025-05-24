@@ -12,7 +12,9 @@ public class SystemManager : MonoBehaviour
     public static SystemManager Instance;
     public int difficulty;
     public GameObject gameOverCanvas;
-    public TMP_Text scoreText;
+    public GameObject gameClearCanvas;
+    public TMP_Text scoreTextGameOver;
+    public TMP_Text scoreTextGameClear;
     public int Score { get; set; }
     public string userName;
     private WebManager _webManager;
@@ -26,7 +28,9 @@ public class SystemManager : MonoBehaviour
 
         DontDestroyOnLoad(this);
         DontDestroyOnLoad(gameOverCanvas);
+        DontDestroyOnLoad(gameClearCanvas);
         gameOverCanvas.SetActive(false);
+        gameClearCanvas.SetActive(false);
 
         InitUser();
         _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
@@ -48,9 +52,11 @@ public class SystemManager : MonoBehaviour
 
     public void Gameover()
     {
-        if (scoreText != null)
+        
+        if (scoreTextGameOver != null)
         {
-            scoreText.text = $"Score: {Score:D4}";
+            //scoreText.text = $"Score: {Score:D4}";
+            scoreTextGameOver.text = $"Score: {Score:D4}";
         }
 
         StartCoroutine(_webManager.PostUserIn(userName, Score, 2, (res) =>
@@ -62,6 +68,50 @@ public class SystemManager : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         gameOverCanvas.SetActive(true);
+    }
+
+    public void GameRestart()
+    {
+        Time.timeScale = 1.0f;
+        Score = 0;
+        difficulty = 1;
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
+        SceneLoad();
+        InitUser();
+
+    }
+
+    public void GameClear()
+    {
+        if (scoreTextGameClear != null)
+        {
+            scoreTextGameClear.text = $"Score: {Score:D4}";
+        }
+
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        gameClearCanvas.SetActive(true);
+    }
+
+    public void GameContinue()
+    {
+        difficulty++;
+        Time.timeScale = 1.0f;
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
+        SceneLoad();
+
+    }
+
+    public void GameExit()
+    {
+        StartCoroutine(_webManager.PostUserIn(userName, Score, 2, (res) =>
+        {
+            Debug.Log(res);
+        }));
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
+        LoadSceneC("Main");
+
     }
 
     public void InitUser()
@@ -76,23 +126,23 @@ public class SystemManager : MonoBehaviour
 
     public void SceneLoad()
     {
-        // string currentScene = SceneManager.GetActiveScene().name;
+        string currentScene = SceneManager.GetActiveScene().name;
 
-        // List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
+        //List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
+        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest"};
 
-        // if (!currentScene.Equals("Main"))
-        // {
-        //     scenes.Remove(currentScene);
-        // }
+        if (!currentScene.Equals("Main"))
+        {
+            scenes.Remove(currentScene);
+        }
 
 
-        // int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
-        
-        // difficulty++;
+        int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
 
-        // StartCoroutine(LoadSceneC(scenes[randomIndex]));
 
-        SceneManager.LoadScene("Map4_Waste");
+        StartCoroutine(LoadSceneC(scenes[randomIndex]));
+
+        //SceneManager.LoadScene("Map4_Waste");
     }
 
     IEnumerator LoadSceneC(string scene)
@@ -107,6 +157,7 @@ public class SystemManager : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         gameOverCanvas.SetActive(false);
+        gameClearCanvas.SetActive(false);
     }
 
     public void Ranking()

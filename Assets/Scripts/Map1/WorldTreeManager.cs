@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class WorldTreeManager : MonoBehaviour 
@@ -21,7 +22,6 @@ public class WorldTreeManager : MonoBehaviour
     private float HumanAISpeed; // persec
     private float humanAIHP;
 
-    private int score = 0;
     private int FireExtinguishingScore;
     private int HumanHuntingScore;
 
@@ -56,12 +56,10 @@ public class WorldTreeManager : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain System Manager");
             LevelOfDifficulty(5);
-            score = 0;
         }
         else
         {
             LevelOfDifficulty(_systemManager.difficulty);
-            score = _systemManager.Score;
         }
         
 
@@ -94,12 +92,12 @@ public class WorldTreeManager : MonoBehaviour
         tpc.SprintSpeed = (float)(8 * (1 + (0.1 * difficulty)));
 
         FireExtinguishingScore = (int)(10 * (difficulty));
-        HumanHuntingScore = (int)(10 * (difficulty));
+        HumanHuntingScore = (int)(15 * (difficulty));
     }
 
     private void Update()
     {
-        _textForScore.text = "Score : " + score;
+        _textForScore.text = "Score : " + _systemManager.Score;
 
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
@@ -134,16 +132,16 @@ public class WorldTreeManager : MonoBehaviour
 
     public void FireExtinguishing()
     {
-        score += FireExtinguishingScore;
+        _systemManager.Score += FireExtinguishingScore;
         ShowTextFaded(_text, "Fire Extinguished");
-        Debug.Log("Fire Extinguishing score changed / score : " + score);
+        Debug.Log("Fire Extinguishing score changed / score : " + _systemManager.Score);
     }
 
     public void HumanHunting()
     {
-        score += HumanHuntingScore;
+        _systemManager.Score += HumanHuntingScore;
         ShowTextFaded(_text, "Human Hunted");
-        Debug.Log("Human Hunting score changed / score : " + score);
+        Debug.Log("Human Hunting score changed / score : " + _systemManager.Score);
         curHumanAI--;
     }
 
@@ -161,12 +159,11 @@ public class WorldTreeManager : MonoBehaviour
     {
         //_gameover.enabled = true;
         _systemManager.Gameover();
-        _systemManager.Score = score;
     }
 
     void GameClear()
     {
-
+        _systemManager.GameClear();
     }
     
     public float GetHumanAISpeed() { return HumanAISpeed; }

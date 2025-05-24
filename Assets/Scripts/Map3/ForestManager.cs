@@ -27,7 +27,6 @@ public class ForestManager : MonoBehaviour
     private int maxRegenSeeds = 20;
     private int curRegenSeeds = 0;
 
-    private int score = 0;
     private int humanHuntingScore;
     private int loggingTreesScore; // 벌목되면 이만큼 점수깎임
     private int plantingScore;
@@ -59,12 +58,10 @@ public class ForestManager : MonoBehaviour
         {
             Debug.LogWarning("This scene has not contain System Manager");
             LevelOfDifficulty(5);
-            score = 0;
         }
         else
         {
             LevelOfDifficulty(_systemManager.difficulty);
-            score = _systemManager.Score;
         }
 
     }
@@ -95,9 +92,9 @@ public class ForestManager : MonoBehaviour
         tpc.MoveSpeed = (float)(4 * (1 + (0.05 * difficulty)));
         tpc.SprintSpeed = (float)(8 * (1 + (0.05 * difficulty)));
 
-        loggingTreesScore = (int)(10 * (difficulty + 1));
-        humanHuntingScore = (int)(15 * (difficulty + 1));
-        plantingScore = (int)(10 * (difficulty + 1));
+        loggingTreesScore = (int)(10 * (difficulty));
+        humanHuntingScore = (int)(15 * (difficulty));
+        plantingScore = (int)(10 * (difficulty));
     }
 
     //private void PreSetting()
@@ -112,7 +109,7 @@ public class ForestManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _textForScore.text = "Score : " + score;
+        _textForScore.text = "Score : " + _systemManager.Score;
         _treeLife.text = "Tree Life : " + curAllowTreeLogging;
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
@@ -142,12 +139,11 @@ public class ForestManager : MonoBehaviour
     {
         //_gameOver.enabled = true;
         _systemManager.Gameover();
-        _systemManager.Score = score;
     }
 
     private void GameClear()
     {
-
+        _systemManager.GameClear();
     }
 
     private void EnemySpawn()
@@ -162,17 +158,17 @@ public class ForestManager : MonoBehaviour
 
     public void HumanHunting()
     {
-        score += humanHuntingScore;
+        _systemManager.Score += humanHuntingScore;
         ShowTextFaded(_text, "Human hunted");
-        Debug.Log("Human Hunting score changed / score : " + score);
+        Debug.Log("Human Hunting score changed / score : " + _systemManager.Score);
         curHumanAI--;
     }
 
     public void LoggingTrees()
     {
-        score -= loggingTreesScore;
+        _systemManager.Score -= loggingTreesScore;
         ShowTextFaded(_text, "Tree logged");
-        Debug.Log("Tree Loged score changed / score : " + score);
+        Debug.Log("Tree Loged score changed / score : " + _systemManager.Score);
         curAllowTreeLogging--;
 
         int i = 10 - curAllowTreeLogging;
@@ -184,9 +180,9 @@ public class ForestManager : MonoBehaviour
     }
     public void seedPlanting()
     {
-        score += plantingScore;
+        _systemManager.Score += plantingScore;
         ShowTextFaded(_text, "Seed planted");
-        Debug.Log("Seed Planting, score changed / score : " + score);
+        Debug.Log("Seed Planting, score changed / score : " + _systemManager.Score);
     }
 
     public void addHaveSeedCount(int count) {
