@@ -1,11 +1,13 @@
 using System.Collections;
 
 using System;
+using System.Text.RegularExpressions;
 
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 public class SystemManager : MonoBehaviour
 {
@@ -40,26 +42,29 @@ public class SystemManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-       
-    }
-
-    void Update()
-    {
-
-    }
-
     public void Gameover()
     {
-        
+
         if (scoreTextGameOver != null)
         {
             //scoreText.text = $"Score: {Score:D4}";
             scoreTextGameOver.text = $"Score: {Score:D4}";
         }
 
-        StartCoroutine(_webManager.PostUserIn(userName, Score, 2, (res) =>
+        if (Score < 0)
+            Score = 0;
+
+        int badge;
+        if (Score < 1000)
+            badge = 0;
+        else if (Score < 2000)
+            badge = 1;
+        else if (Score < 3000)
+            badge = 2;
+        else
+            badge = 4;
+
+        StartCoroutine(_webManager.PostUserIn(userName, Score, badge, (res) =>
         {
             Debug.Log(res);
         }));
@@ -85,7 +90,7 @@ public class SystemManager : MonoBehaviour
     {
         if (scoreTextGameClear != null)
         {
-            scoreTextGameClear.text = $"Score: {Score:D4}";
+            scoreTextGameClear.text = $"{userName}\nScore: {Score:D4}";
         }
 
         Time.timeScale = 0f;
@@ -98,20 +103,37 @@ public class SystemManager : MonoBehaviour
     {
         difficulty++;
         Time.timeScale = 1.0f;
+        gameClearCanvas.SetActive(false);
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
         SceneLoad();
-
     }
 
     public void GameExit()
     {
-        StartCoroutine(_webManager.PostUserIn(userName, Score, 2, (res) =>
+        if (Score < 0)
+            Score = 0;
+
+        int badge;
+        if (Score < 1000)
+            badge = 0;
+        else if (Score < 2000)
+            badge = 1;
+        else if (Score < 3000)
+            badge = 2;
+        else
+            badge = 4;
+
+        StartCoroutine(_webManager.PostUserIn(userName, Score, badge, (res) =>
         {
             Debug.Log(res);
         }));
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
         LoadSceneC("Main");
-
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 
     public void InitUser()
@@ -128,21 +150,16 @@ public class SystemManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
-        //List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
-        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest"};
+        List<String> scenes = new List<String> { "Map1_TreeGuard", "Map3_Forest", "Map4_Waste" };
 
         if (!currentScene.Equals("Main"))
         {
             scenes.Remove(currentScene);
         }
 
-
         int randomIndex = UnityEngine.Random.Range(0, scenes.Count);
 
-
         StartCoroutine(LoadSceneC(scenes[randomIndex]));
-
-        //SceneManager.LoadScene("Map4_Waste");
     }
 
     IEnumerator LoadSceneC(string scene)
@@ -164,5 +181,24 @@ public class SystemManager : MonoBehaviour
     {
         string url = "http://localhost:8000/html";
         Application.OpenURL(url);
+    }
+
+    public String OnResponse(string result)
+    {
+        if (string.IsNullOrEmpty(result))
+            return "";
+
+        LLMResp resp = JsonUtility.FromJson<LLMResp>(result);
+        string text = resp.message;
+
+        string pattern = @"<think>[\s\S]*?</think>";
+        text = Regex.Replace(text, pattern, string.Empty);
+
+        text = text.TrimStart('\r', '\n');
+        return text;
+    }
+    private class LLMResp
+    {
+        public string message;
     }
 }

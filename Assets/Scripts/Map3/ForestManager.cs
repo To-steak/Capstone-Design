@@ -28,7 +28,7 @@ public class ForestManager : MonoBehaviour
     private int curRegenSeeds = 0;
 
     private int humanHuntingScore;
-    private int loggingTreesScore; // ¹ú¸ñµÇ¸é ÀÌ¸¸Å­ Á¡¼ö±ðÀÓ
+    private int loggingTreesScore; // ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ ï¿½Ì¸ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private int plantingScore;
 
     private int haveSeedCount = 0;
@@ -44,10 +44,12 @@ public class ForestManager : MonoBehaviour
     private SystemManager _systemManager;
 
     public GameObject enemyPrefeb;
+    private bool _isGameover = false;
     GameObject[] EnemySpawnPoints;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
+        _isGameover = false;
         if (GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
@@ -113,18 +115,22 @@ public class ForestManager : MonoBehaviour
         _treeLife.text = "Tree Life : " + curAllowTreeLogging;
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
-        if(curAllowTreeLogging <= 0)
+        if (curAllowTreeLogging <= 0)
         {
-            GameOver();
+            if (!_isGameover)
+            {
+                GameOver();
+
+            }
         }
-        else if(timer <= 0)
+        else if (timer <= 0)
         {
             GameClear();
         }
 
         if (curHumanAI < maxHumanAI && curTermOfHumanRespawn <= 0)
         { //enemy spawn
-            for(int i = humanAIRegenOnceOfTime; i > 0; i--)
+            for (int i = humanAIRegenOnceOfTime; i > 0; i--)
             {
                 EnemySpawn();
             }
@@ -138,6 +144,7 @@ public class ForestManager : MonoBehaviour
     private void GameOver()
     {
         //_gameOver.enabled = true;
+        _isGameover = true;
         _systemManager.Gameover();
     }
 
@@ -173,10 +180,11 @@ public class ForestManager : MonoBehaviour
 
         int i = 10 - curAllowTreeLogging;
         if (i <= 0) { i = 0; }
-        StartCoroutine(_webManager.GetResponse("Forest", i, (res) => {
-            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
+        StartCoroutine(_webManager.GetResponse("Forest", i, (res) =>
+        {
+            ShowTextFaded(_notify, SystemManager.Instance.OnResponse(res), 10f);
         }));
-        
+
     }
     public void seedPlanting()
     {
@@ -185,25 +193,27 @@ public class ForestManager : MonoBehaviour
         Debug.Log("Seed Planting, score changed / score : " + _systemManager.Score);
     }
 
-    public void addHaveSeedCount(int count) {
+    public void addHaveSeedCount(int count)
+    {
         haveSeedCount += count;
         ShowTextFaded(_text, "Get the seeds");
         _textForSeed.GetComponent<TextMeshProUGUI>().text = "Seed : " + haveSeedCount;
     }
 
-    
+
     Coroutine coroutine;
     private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;
+        t.fontSize = 36f;
         t.enabled = true;
         if (coroutine != null) { StopCoroutine(coroutine); }
         coroutine = StartCoroutine(CoFadeOut(_text, time));
     }
     IEnumerator CoFadeOut(TextMeshProUGUI t, float time)
     {
-        float elapsedTime = 0f; // ´©Àû °æ°ú ½Ã°£
-        float fadedTime = time; // ÃÑ ¼Ò¿ä ½Ã°£
+        float elapsedTime = 0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+        float fadedTime = time; // ï¿½ï¿½ ï¿½Ò¿ï¿½ ï¿½Ã°ï¿½
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
@@ -211,13 +221,13 @@ public class ForestManager : MonoBehaviour
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            //Debug.Log("Fade Out Áß...");
+            //Debug.Log("Fade Out ï¿½ï¿½...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        //Debug.Log("Fade Out ³¡");
+        //Debug.Log("Fade Out ï¿½ï¿½");
         yield break;
     }
 
@@ -226,5 +236,5 @@ public class ForestManager : MonoBehaviour
     public int GetCurRegenSeeds() { return curRegenSeeds; }
     public void AddCurRegenSeeds(int i) { curRegenSeeds += i; }
     public bool IsSeedRegenPossible() { return curRegenSeeds < maxRegenSeeds; }
-    public float GetHumanAIHP() {  return humanAIHP; }
+    public float GetHumanAIHP() { return humanAIHP; }
 }

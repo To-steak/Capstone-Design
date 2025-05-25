@@ -36,11 +36,13 @@ public class WorldTreeManager : MonoBehaviour
     WorldTree _worldTree;
     private WebManager _webManager;
     private SystemManager _systemManager;
+    private bool _isGameover;
     GameObject[] EnemySpawnPoints;
 
     private void Awake()
     {
-        if(GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
+        _isGameover = false;
+        if (GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
             Debug.LogWarning("This scene has not contain Web Manager");
@@ -103,7 +105,10 @@ public class WorldTreeManager : MonoBehaviour
         _time.text = "Time : " + timer;
         if (_worldTree.GetHealth() <= 0)
         {
-            GameOver();
+            if (!_isGameover)
+            {
+                GameOver();             
+            }
         }
         else if(timer <= 0)
         {
@@ -150,7 +155,7 @@ public class WorldTreeManager : MonoBehaviour
         _worldTree.HealthChange(-damageOfFireOverflow);
         StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) =>
         {
-            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
+            ShowTextFaded(_notify, SystemManager.Instance.OnResponse(res), 10f);
         }));
     }
 
@@ -158,6 +163,7 @@ public class WorldTreeManager : MonoBehaviour
     void GameOver()
     {
         //_gameover.enabled = true;
+        _isGameover = true;
         _systemManager.Gameover();
     }
 
@@ -174,14 +180,15 @@ public class WorldTreeManager : MonoBehaviour
     private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;
+        t.fontSize = 36f;
         t.enabled = true;
         if (coroutine != null) { StopCoroutine(coroutine); }
         coroutine = StartCoroutine(CoFadeOut(_text, time));
     }
     IEnumerator CoFadeOut(TextMeshProUGUI t, float time)
     {
-        float elapsedTime = 0f; // ´©Àû °æ°ú ½Ã°£
-        float fadedTime = time; // ÃÑ ¼Ò¿ä ½Ã°£
+        float elapsedTime = 0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+        float fadedTime = time; // ï¿½ï¿½ ï¿½Ò¿ï¿½ ï¿½Ã°ï¿½
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
@@ -189,13 +196,13 @@ public class WorldTreeManager : MonoBehaviour
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            //Debug.Log("Fade Out Áß...");
+            //Debug.Log("Fade Out ï¿½ï¿½...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        //Debug.Log("Fade Out ³¡");
+        //Debug.Log("Fade Out ï¿½ï¿½");
         yield break;
     }
 }

@@ -9,7 +9,7 @@ namespace Waste
     {
         [Header("HP Settings")]
         [SerializeField] private float maxHP = 100f;
-        private float _currentHP;
+        public float currentHP;
 
         [Header("UI")]
         [SerializeField] private Slider hpSlider;
@@ -18,7 +18,7 @@ namespace Waste
 
         void Awake()
         {
-            _currentHP = maxHP;
+            currentHP = maxHP;
             _animator = GetComponent<Animator>();
             _controller = GetComponent<ThirdPersonController>();
             _controller.enabled = true;
@@ -27,7 +27,7 @@ namespace Waste
             if (hpSlider != null)
             {
                 hpSlider.maxValue = maxHP;
-                hpSlider.value = _currentHP;
+                hpSlider.value = currentHP;
             }
         }
 
@@ -36,15 +36,15 @@ namespace Waste
         /// </summary>
         public void TakeDamage(float amount)
         {
-            _currentHP -= amount;
-            _currentHP = Mathf.Max(_currentHP, 0f);
+            currentHP -= amount;
+            currentHP = Mathf.Max(currentHP, 0f);
 
             if (hpSlider != null)
             {
-                hpSlider.value = _currentHP;
+                hpSlider.value = currentHP;
             }
 
-            if (_currentHP <= 0f)
+            if (currentHP <= 0f)
             {
                 Die();
             }
