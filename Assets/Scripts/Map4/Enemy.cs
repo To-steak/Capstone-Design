@@ -29,11 +29,14 @@ namespace Waste
         private bool _isAttacking = false;
         private PlayerHealth _playerHealth;
 
+        private Waste.GameManager _gameManager;
+
         void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _agent.stoppingDistance = attackRange;
             _animator = GetComponent<Animator>();
+            _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             _isDead = false;
             _nextAttackTime = 0f;
             if (SystemManager.Instance != null)
@@ -126,8 +129,11 @@ namespace Waste
         {
             yield return new WaitForSeconds(2.3f);
 
-            _agent.isStopped = false;
-            _isAttacking = false;
+            if (!_isDead)
+            {
+                _agent.isStopped = false;
+                _isAttacking = false;
+            }
         }
 
         public void TakeDamage(float amount)
@@ -154,8 +160,9 @@ namespace Waste
 
         private IEnumerator DeathDelayRoutine()
         {
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(2.0f);
             EnemyPoolManager.Instance.ReturnEnemy(gameObject);
+            _gameManager.GameClear();
         }
 
         private void EnterWander()
