@@ -73,13 +73,13 @@ namespace Waste
                 Quaternion rot = Quaternion.Euler(0, Random.Range(0, 360), 0);
                 EnemyPoolManager.Instance.GetEnemy(spawnPos, rot);
             }
-            scoreAndTime.text = $"left enemys\n{_enemyCount}";
+            scoreAndTime.text = $"left enemies\n{_enemyCount}";
         }
 
         public void GameClear()
         {
             _enemyCount--;
-            scoreAndTime.text = $"left enemys\n{_enemyCount}";
+            scoreAndTime.text = $"left enemies\n{_enemyCount}";
             if (SystemManager.Instance != null)
             {
                 SystemManager.Instance.Score += 10 * SystemManager.Instance.difficulty;
