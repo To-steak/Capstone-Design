@@ -9,14 +9,14 @@ using Unity.Mathematics;
 
 public class HumanAI : MonoBehaviour
 {
-    protected float Health = 100;
+    protected float Health;
     
     private Action onComplete;
 
     private WorldTreeManager _worldTreeManager;
     public Collider _fireLitRange;
     public NavMeshAgent agent;
-
+    public Animator anim;
     protected Transform[] waypoints;
     int waypointIndex = -1;
 
@@ -25,6 +25,8 @@ public class HumanAI : MonoBehaviour
         onComplete += SetWaypoint;
         SetWaypoint();
         agent.speed = _worldTreeManager.GetHumanAISpeed();
+        Health = _worldTreeManager.GetHumanAIHP();
+        anim.SetFloat("runSpeed", 0.1f * _worldTreeManager.GetHumanAISpeed());
     }
 
     void SetWaypoint()

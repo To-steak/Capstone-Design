@@ -21,13 +21,14 @@ public class ForestManager : MonoBehaviour
     private float curTermOfHumanRespawn = 0;
     private float HumanAISpeed; // persec
     private float HumanAiLogDamage;
+    private float humanAIHP;
+    private int humanAIRegenOnceOfTime;
 
     private int maxRegenSeeds = 20;
     private int curRegenSeeds = 0;
 
-    private int score = 0;
     private int humanHuntingScore;
-    private int loggingTreesScore; // ¹ú¸ñµÇ¸é ÀÌ¸¸Å­ Á¡¼ö±ðÀÓ
+    private int loggingTreesScore; // ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ ï¿½Ì¸ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private int plantingScore;
 
     private int haveSeedCount = 0;
@@ -37,27 +38,33 @@ public class ForestManager : MonoBehaviour
     private TextMeshProUGUI _text;
     private TextMeshProUGUI _notify;
     private TextMeshProUGUI _time;
+    private TextMeshProUGUI _treeLife;
     //private TextMeshProUGUI _gameOver;
     private WebManager _webManager;
     private SystemManager _systemManager;
 
     public GameObject enemyPrefeb;
+    private bool _isGameover = false;
     GameObject[] EnemySpawnPoints;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
-        _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
+        _isGameover = false;
+        if (GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
             Debug.LogWarning("This scene has not contain Web Manager");
         }
-        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (GameObject.Find("SystemManager")) { _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>(); }
         if (_systemManager == null)
         {
             Debug.LogWarning("This scene has not contain System Manager");
+            LevelOfDifficulty(5);
         }
-        LevelOfDifficulty(_systemManager.difficulty);
-        score = _systemManager.Score;
+        else
+        {
+            LevelOfDifficulty(_systemManager.difficulty);
+        }
 
     }
     void Start()
@@ -68,6 +75,7 @@ public class ForestManager : MonoBehaviour
         _text = GameObject.Find("Text").GetComponent<TextMeshProUGUI>();
         _notify = GameObject.Find("Notify").GetComponent<TextMeshProUGUI>();
         _time = GameObject.Find("Time").GetComponent<TextMeshProUGUI>();
+        _treeLife = GameObject.Find("TreeLife").GetComponent<TextMeshProUGUI>();
         //_gameOver = GameObject.Find("GameOver").GetComponent<TextMeshProUGUI>();
         EnemySpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoints");
         curAllowTreeLogging = allowTreeLogging;
@@ -78,15 +86,17 @@ public class ForestManager : MonoBehaviour
         maxHumanAI = (int)(5 + (0.4 * difficulty));
         TermOfHumanRespawn = (float)(10 - (0.15 * difficulty));
         HumanAiLogDamage = (float)(10 + (difficulty));
-        HumanAISpeed = (float)(3 * (1 + (0.1 * difficulty)));
+        HumanAISpeed = (float)(4 * (1 + (0.1 * difficulty)));
+        humanAIHP = 80 + (10 * difficulty);
+        humanAIRegenOnceOfTime = (int)(3 + System.Math.Truncate(difficulty / 5));
 
         ThirdPersonController tpc = GameObject.FindGameObjectWithTag("Player").GetComponent<ThirdPersonController>();
         tpc.MoveSpeed = (float)(4 * (1 + (0.05 * difficulty)));
         tpc.SprintSpeed = (float)(8 * (1 + (0.05 * difficulty)));
 
-        loggingTreesScore = (int)(10 * (difficulty + 1));
-        humanHuntingScore = (int)(15 * (difficulty + 1));
-        plantingScore = (int)(10 * (difficulty + 1));
+        loggingTreesScore = (int)(10 * (difficulty));
+        humanHuntingScore = (int)(15 * (difficulty));
+        plantingScore = (int)(10 * (difficulty));
     }
 
     //private void PreSetting()
@@ -101,19 +111,29 @@ public class ForestManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _textForScore.text = "Score : " + score;
-
+        _textForScore.text = "Score : " + _systemManager.Score;
+        _treeLife.text = "Tree Life : " + curAllowTreeLogging;
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
-        if(timer <= 0 || curAllowTreeLogging <= 0)
+        if (curAllowTreeLogging <= 0)
         {
-            GameOver();
+            if (!_isGameover)
+            {
+                GameOver();
+
+            }
         }
+        else if (timer <= 0)
+        {
+            GameClear();
+        }
+
         if (curHumanAI < maxHumanAI && curTermOfHumanRespawn <= 0)
         { //enemy spawn
-            EnemySpawn();
-            EnemySpawn();
-            EnemySpawn();
+            for (int i = humanAIRegenOnceOfTime; i > 0; i--)
+            {
+                EnemySpawn();
+            }
         }
         else if (curHumanAI < maxHumanAI)
         {
@@ -124,8 +144,13 @@ public class ForestManager : MonoBehaviour
     private void GameOver()
     {
         //_gameOver.enabled = true;
+        _isGameover = true;
         _systemManager.Gameover();
-        _systemManager.Score = score;
+    }
+
+    private void GameClear()
+    {
+        _systemManager.GameClear();
     }
 
     private void EnemySpawn()
@@ -140,52 +165,55 @@ public class ForestManager : MonoBehaviour
 
     public void HumanHunting()
     {
-        score += humanHuntingScore;
+        _systemManager.Score += humanHuntingScore;
         ShowTextFaded(_text, "Human hunted");
-        Debug.Log("Human Hunting score changed / score : " + score);
+        Debug.Log("Human Hunting score changed / score : " + _systemManager.Score);
         curHumanAI--;
     }
 
     public void LoggingTrees()
     {
-        score -= loggingTreesScore;
+        _systemManager.Score -= loggingTreesScore;
         ShowTextFaded(_text, "Tree logged");
-        Debug.Log("Tree Loged score changed / score : " + score);
+        Debug.Log("Tree Loged score changed / score : " + _systemManager.Score);
         curAllowTreeLogging--;
 
         int i = 10 - curAllowTreeLogging;
         if (i <= 0) { i = 0; }
-        StartCoroutine(_webManager.GetResponse("Forest", i, (res) => {
-            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
+        StartCoroutine(_webManager.GetResponse("Forest", i, (res) =>
+        {
+            ShowTextFaded(_notify, SystemManager.Instance.OnResponse(res), 10f);
         }));
-        
+
     }
     public void seedPlanting()
     {
-        score += plantingScore;
+        _systemManager.Score += plantingScore;
         ShowTextFaded(_text, "Seed planted");
-        Debug.Log("Seed Planting, score changed / score : " + score);
+        Debug.Log("Seed Planting, score changed / score : " + _systemManager.Score);
     }
 
-    public void addHaveSeedCount(int count) {
+    public void addHaveSeedCount(int count)
+    {
         haveSeedCount += count;
         ShowTextFaded(_text, "Get the seeds");
         _textForSeed.GetComponent<TextMeshProUGUI>().text = "Seed : " + haveSeedCount;
     }
 
-    
+
     Coroutine coroutine;
     private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;
+        t.fontSize = 36f;
         t.enabled = true;
         if (coroutine != null) { StopCoroutine(coroutine); }
         coroutine = StartCoroutine(CoFadeOut(_text, time));
     }
     IEnumerator CoFadeOut(TextMeshProUGUI t, float time)
     {
-        float elapsedTime = 0f; // ´©Àû °æ°ú ½Ã°£
-        float fadedTime = time; // ÃÑ ¼Ò¿ä ½Ã°£
+        float elapsedTime = 0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+        float fadedTime = time; // ï¿½ï¿½ ï¿½Ò¿ï¿½ ï¿½Ã°ï¿½
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
@@ -193,13 +221,13 @@ public class ForestManager : MonoBehaviour
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            //Debug.Log("Fade Out Áß...");
+            //Debug.Log("Fade Out ï¿½ï¿½...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        //Debug.Log("Fade Out ³¡");
+        //Debug.Log("Fade Out ï¿½ï¿½");
         yield break;
     }
 
@@ -208,4 +236,5 @@ public class ForestManager : MonoBehaviour
     public int GetCurRegenSeeds() { return curRegenSeeds; }
     public void AddCurRegenSeeds(int i) { curRegenSeeds += i; }
     public bool IsSeedRegenPossible() { return curRegenSeeds < maxRegenSeeds; }
+    public float GetHumanAIHP() { return humanAIHP; }
 }

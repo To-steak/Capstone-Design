@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-
+using System.Text.RegularExpressions;
 
 public class WebManager : MonoBehaviour
 {
@@ -66,6 +66,7 @@ public class WebManager : MonoBehaviour
         else
         {
             string responseText = request.downloadHandler.text;
+
             callback?.Invoke(responseText);
         }
     }
@@ -83,5 +84,11 @@ public class WebManager : MonoBehaviour
         public string name;
         public int score;
         public int badge;
+    }
+    
+    [Serializable]
+    private class LLMResp
+    {
+        public string message;
     }
 }

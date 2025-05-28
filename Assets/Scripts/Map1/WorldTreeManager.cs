@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class WorldTreeManager : MonoBehaviour 
@@ -19,8 +20,8 @@ public class WorldTreeManager : MonoBehaviour
     private float TermOfHumanRespawn; //sec
     private float curTermOfHumanRespawn = 0;
     private float HumanAISpeed; // persec
+    private float humanAIHP;
 
-    private int score = 0;
     private int FireExtinguishingScore;
     private int HumanHuntingScore;
 
@@ -35,11 +36,13 @@ public class WorldTreeManager : MonoBehaviour
     WorldTree _worldTree;
     private WebManager _webManager;
     private SystemManager _systemManager;
+    private bool _isGameover;
     GameObject[] EnemySpawnPoints;
 
     private void Awake()
     {
-        _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>();
+        _isGameover = false;
+        if (GameObject.FindWithTag("Web")) { _webManager = GameObject.FindWithTag("Web").GetComponent<WebManager>(); }
         if (_webManager == null)
         {
             Debug.LogWarning("This scene has not contain Web Manager");
@@ -50,13 +53,17 @@ public class WorldTreeManager : MonoBehaviour
         {
             Debug.Log("worldTree NULL");
         }
-        _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>();
+        if (GameObject.Find("SystemManager")) { _systemManager = GameObject.Find("SystemManager").GetComponent<SystemManager>(); }
         if (_systemManager == null)
         {
             Debug.LogWarning("This scene has not contain System Manager");
+            LevelOfDifficulty(5);
         }
-        LevelOfDifficulty(_systemManager.difficulty);
-        score = _systemManager.Score;
+        else
+        {
+            LevelOfDifficulty(_systemManager.difficulty);
+        }
+        
 
     }
     void Start()
@@ -79,25 +86,33 @@ public class WorldTreeManager : MonoBehaviour
         TermOfHumanRespawn = (float)(10 - (0.15 * difficulty));
         damageOfFireOverflow = (int)(10 + (0.5 * difficulty));
         TermOfFireOverflow = (float)(20 - (0.25 * difficulty));
-        HumanAISpeed = (float)(3 * (1 + (0.1 * difficulty)));
+        HumanAISpeed = (float)(4 * (1 + (0.1 * difficulty)));
+        humanAIHP = 80 + (10 * difficulty);
 
         ThirdPersonController tpc = GameObject.FindGameObjectWithTag("Player").GetComponent<ThirdPersonController>();
         tpc.MoveSpeed = (float)(4 * (1 + (0.1 * difficulty)));
         tpc.SprintSpeed = (float)(8 * (1 + (0.1 * difficulty)));
 
-        FireExtinguishingScore = (int)(10 * (difficulty + 1));
-        HumanHuntingScore = (int)(10 * (difficulty + 1));
+        FireExtinguishingScore = (int)(10 * (difficulty));
+        HumanHuntingScore = (int)(15 * (difficulty));
     }
 
     private void Update()
     {
-        _textForScore.text = "Score : " + score;
+        _textForScore.text = "Score : " + _systemManager.Score;
 
         timer -= Time.deltaTime;
         _time.text = "Time : " + timer;
-        if (timer <= 0 || _worldTree.GetHealth() <= 0)
+        if (_worldTree.GetHealth() <= 0)
         {
-            GameOver();
+            if (!_isGameover)
+            {
+                GameOver();             
+            }
+        }
+        else if(timer <= 0)
+        {
+            GameClear();
         }
         
         worldTreeHealthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(healthBarLen * _worldTree.GetHealth() / 100, 20); // UI worldTreeHealthBar
@@ -122,16 +137,16 @@ public class WorldTreeManager : MonoBehaviour
 
     public void FireExtinguishing()
     {
-        score += FireExtinguishingScore;
+        _systemManager.Score += FireExtinguishingScore;
         ShowTextFaded(_text, "Fire Extinguished");
-        Debug.Log("Fire Extinguishing score changed / score : " + score);
+        Debug.Log("Fire Extinguishing score changed / score : " + _systemManager.Score);
     }
 
     public void HumanHunting()
     {
-        score += HumanHuntingScore;
+        _systemManager.Score += HumanHuntingScore;
         ShowTextFaded(_text, "Human Hunted");
-        Debug.Log("Human Hunting score changed / score : " + score);
+        Debug.Log("Human Hunting score changed / score : " + _systemManager.Score);
         curHumanAI--;
     }
 
@@ -140,7 +155,7 @@ public class WorldTreeManager : MonoBehaviour
         _worldTree.HealthChange(-damageOfFireOverflow);
         StartCoroutine(_webManager.GetResponse("World Tree", 10 - (int)(_worldTree.GetHealth() / 10), (res) =>
         {
-            ShowTextFaded(_notify, Regex.Match(res, @"'([^']*)'").Groups[1].Value, 10f);
+            ShowTextFaded(_notify, SystemManager.Instance.OnResponse(res), 10f);
         }));
     }
 
@@ -148,25 +163,32 @@ public class WorldTreeManager : MonoBehaviour
     void GameOver()
     {
         //_gameover.enabled = true;
+        _isGameover = true;
         _systemManager.Gameover();
-        _systemManager.Score = score;
     }
 
-    Coroutine coroutine;
+    void GameClear()
+    {
+        _systemManager.GameClear();
+    }
+    
     public float GetHumanAISpeed() { return HumanAISpeed; }
     public float GetTermOfFireOverflow() { return TermOfFireOverflow; }
+    public float GetHumanAIHP() { return humanAIHP; }
 
+    Coroutine coroutine;
     private void ShowTextFaded(TextMeshProUGUI t, string message, float time = 2f)
     {
         t.text = message;
+        t.fontSize = 36f;
         t.enabled = true;
         if (coroutine != null) { StopCoroutine(coroutine); }
         coroutine = StartCoroutine(CoFadeOut(_text, time));
     }
     IEnumerator CoFadeOut(TextMeshProUGUI t, float time)
     {
-        float elapsedTime = 0f; // ´©Àû °æ°ú ½Ã°£
-        float fadedTime = time; // ÃÑ ¼Ò¿ä ½Ã°£
+        float elapsedTime = 0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+        float fadedTime = time; // ï¿½ï¿½ ï¿½Ò¿ï¿½ ï¿½Ã°ï¿½
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
@@ -174,13 +196,13 @@ public class WorldTreeManager : MonoBehaviour
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            //Debug.Log("Fade Out Áß...");
+            //Debug.Log("Fade Out ï¿½ï¿½...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        //Debug.Log("Fade Out ³¡");
+        //Debug.Log("Fade Out ï¿½ï¿½");
         yield break;
     }
 }

@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
-using System.Text.RegularExpressions;
 using System.Collections;
+
 
 namespace Waste
 {
@@ -14,15 +14,20 @@ namespace Waste
         [SerializeField] private int _enemyCount;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private int _interval;
+        private PlayerHealth _playerHealth;
 
         void Awake()
         {
+            _playerHealth = GameObject.Find("PlayerArmature").GetComponent<PlayerHealth>();
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-
+            if (SystemManager.Instance != null)
+            {
+                _enemyCount += SystemManager.Instance.difficulty;
+            }
             Instance = this;
         }
 
@@ -32,19 +37,19 @@ namespace Waste
             StartCoroutine(RequestLLM());
         }
 
-        void Update()
-        {
-
-        }
-
         private IEnumerator RequestLLM()
         {
             while (true)
             {
-                if (WebManager.Instance != null)
+                // 살아있는 경우만 llm 응답 요청
+                if (WebManager.Instance != null && _playerHealth.currentHP > 0)
                 {
+                    int temp = (int)_playerHealth.currentHP / 100;
                     // GetResponse 코루틴이 완료될 때까지 기다렸다가,
-                    yield return WebManager.Instance.GetResponse("Water", 1, OnResponse);
+                    yield return WebManager.Instance.GetResponse("Water", temp, (result) =>
+                    {
+                        LLMText.text = SystemManager.Instance.OnResponse(result);
+                    });
                 }
 
                 // 10초 대기
@@ -52,37 +57,44 @@ namespace Waste
             }
         }
 
-        private void OnResponse(string result)
-        {
-            if (!string.IsNullOrEmpty(result))
-            {
-                string pattern = @"<think>[\s\S]*?</think>";
-                LLMText.text = Regex.Replace(result, pattern, string.Empty);
-            }
-        }
-
         private void InitializeEnemy()
         {
-            TerrainData terrainData = _terrain.terrainData;
             Vector3 terrainPos = _terrain.transform.position;
-
-            float width = terrainData.size.x;
-            float depth = terrainData.size.y;
+            TerrainData data = _terrain.terrainData;
 
             for (int i = 0; i < _enemyCount; i++)
             {
-                float x = Random.Range(0f, width);
-                float z = Random.Range(0f, depth);
-                Vector3 origin = terrainPos + new Vector3(x, 100f, z);
+                float x = Random.Range(terrainPos.x, terrainPos.x + data.size.x);
+                float z = Random.Range(terrainPos.z, terrainPos.z + data.size.z);
 
-                if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 200f, _groundMask))
-                {
-                    Vector3 spawnPos = hit.point;
-                    Quaternion rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
-                    EnemyPoolManager.Instance.GetEnemy(spawnPos, rotation);
-                }
+                float y = _terrain.SampleHeight(new Vector3(x, 0, z)) + terrainPos.y;
+
+                Vector3 spawnPos = new Vector3(x, y, z);
+                Quaternion rot = Quaternion.Euler(0, Random.Range(0, 360), 0);
+                EnemyPoolManager.Instance.GetEnemy(spawnPos, rot);
+            }
+            scoreAndTime.text = $"left enemies\n{_enemyCount}";
+        }
+
+        public void GameClear()
+        {
+            _enemyCount--;
+            scoreAndTime.text = $"left enemies\n{_enemyCount}";
+            if (SystemManager.Instance != null)
+            {
+                SystemManager.Instance.Score += 10 * SystemManager.Instance.difficulty;
+            }
+            else
+            {
+                print("system manager is null: can't add score");
+            }
+            if (_enemyCount == 0)
+            {
+                // gameclear
+                SystemManager.Instance.GameClear();
             }
         }
+
+
     }
 }
-

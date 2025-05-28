@@ -26,6 +26,8 @@ public class FireObject : ObjectInteraction
     private void Start()
     {
         fireTimeOut = _worldTreeManager.GetTermOfFireOverflow();
+        fire.Stop();
+        fire.GetComponent<AudioSource>().Stop();
     }
     private void Update()
     {
@@ -50,10 +52,12 @@ public class FireObject : ObjectInteraction
             if (state)
             {
                 fire.Play();
+                fire.GetComponent<AudioSource>().Play();
             }
             else
             {
                 fire.Stop();
+                fire.GetComponent<AudioSource>().Stop();
                 fireTimer = 0f;
             }
         }
@@ -66,6 +70,7 @@ public class FireObject : ObjectInteraction
         if (isLit)
         {
             fire.Stop();
+            fire.GetComponent<AudioSource>().Stop();
             fireTimer = 0f;
             _worldTreeManager.FireExtinguishing();
             isLit = false;
