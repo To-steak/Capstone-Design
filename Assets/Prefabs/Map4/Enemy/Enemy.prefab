@@ -5159,9 +5159,9 @@ MonoBehaviour:
   maxHP: 100
   attackRange: 3
   attackInterval: 3.5
-  wanderRadius: 5
-  minWanderInterval: 5
-  maxWanderInterval: 8
+  wanderRadius: 10
+  minWanderInterval: 1
+  maxWanderInterval: 3
   playerTag: Player
   attackDamage: 10
 --- !u!1 &837455839942860542
