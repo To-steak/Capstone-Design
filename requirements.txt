@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-jinja2
-SQLAlchemy
-PyMySQL
-langchain_core
-langchain_ollama
