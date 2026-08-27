@@ -1,11 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
-using static UnityEngine.Rendering.DebugUI;
 
 public class TreePlace_Forest : ObjectInteraction
 {
@@ -60,8 +55,8 @@ public class TreePlace_Forest : ObjectInteraction
     }
     IEnumerator CoFadeOut(TextMeshProUGUI t)
     {
-        float elapsedTime = 0f; // 누적 경과 시간
-        float fadedTime = 2f; // 총 소요 시간
+        float elapsedTime = 0f;
+        float fadedTime = 2f;
 
         t.GetComponent<CanvasRenderer>().SetAlpha(1f);
         while (elapsedTime <= fadedTime)
@@ -69,13 +64,13 @@ public class TreePlace_Forest : ObjectInteraction
             t.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(1f, 0f, elapsedTime / fadedTime));
 
             elapsedTime += Time.deltaTime;
-            Debug.Log("Fade Out 중...");
+            Debug.Log("Fade Out ...");
             yield return null;
         }
 
         t.GetComponent<TextMeshProUGUI>().enabled = false;
         coroutine = null;
-        Debug.Log("Fade Out 끝");
+        Debug.Log("Fade Out ");
         yield break;
     }
 

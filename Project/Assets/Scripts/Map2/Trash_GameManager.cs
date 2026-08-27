@@ -6,7 +6,7 @@ public class Trash_GameManager : MonoBehaviour
     public static Trash_GameManager Instance;
 
     private int score = 0;
-    public Text scoreText; // UI ¿¬°á
+    public Text scoreText;
 
     void Awake()
     {
