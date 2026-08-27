@@ -1,4 +1,3 @@
-using UnityEditor.UIElements;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CinemachineCameraData", menuName = "Scriptable Objects/CinemachineCameraData")]
